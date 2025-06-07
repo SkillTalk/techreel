@@ -1,3 +1,31 @@
+/**
+ * ===============================================
+ * File: app.js
+ * Created On: 08-June-2025
+ * Created By: Gautam Kumar
+ * Description:
+ *    Main Express application setup for TechReel backend.
+ *
+ * Responsibilities:
+ *    - Load environment variables using dotenv
+ *    - Register global middlewares (CORS, body-parser)
+ *    - Mount API route modules (auth, users, reels, etc.)
+ *    - Define a root test route to verify server status
+ *
+ * Middleware Used:
+ *    - cors: Enables Cross-Origin Resource Sharing
+ *    - body-parser: Parses incoming request bodies
+ *
+ * Routes Mounted:
+ *    - /api/auth → Authentication-related routes
+ *    - (Planned) /api/users, /api/reels, /api/groups, etc.
+ *
+ * Purpose:
+ *    Acts as the entry point for initializing the Express app.
+ *    This file is imported and run by `server.js`.
+ * ===============================================
+ */
+
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");

@@ -1,3 +1,30 @@
+/**
+ * ===============================================
+ * File: Signup.jsx
+ * Created On: 08-June-2025
+ * Created By: Gautam Kumar
+ * Description:
+ *    React component for user registration functionality.
+ *
+ * Features:
+ *    - Controlled input form for username, email, and password
+ *    - Input validation (empty fields, email format, password length)
+ *    - POST request to /api/auth/signup to create a new user
+ *    - On success: stores user in localStorage and redirects to /profile
+ *    - On failure: displays validation or server errors via toast
+ *
+ * Dependencies:
+ *    - react: Component, useState for form state
+ *    - react-router-dom: useNavigate for redirection, Link for routing
+ *    - react-toastify: Toast notifications for success/error feedback
+ *    - Signup.css: Styling for authentication form UI
+ *
+ * Purpose:
+ *    Provides a clean registration experience in the TechReel frontend,
+ *    validating user input and connecting with the backend signup API.
+ * ===============================================
+ */
+
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";

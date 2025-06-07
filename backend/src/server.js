@@ -1,3 +1,31 @@
+/**
+ * ===============================================
+ * File: server.js
+ * Created On: 08-June-2025
+ * Created By: Gautam Kumar
+ * Description:
+ *    Entry point of the TechReel backend server.
+ *
+ * Responsibilities:
+ *    - Loads environment variables
+ *    - Connects to MongoDB using Mongoose
+ *    - Starts the HTTP server with the Express app
+ *    - (Future scope) Integrates Socket.io for real-time features
+ *
+ * Dependencies:
+ *    - http: Node.js module to create the server
+ *    - mongoose: For connecting to MongoDB Atlas
+ *    - dotenv: Loads environment config
+ *    - ./config/db: Custom DB connection function
+ *    - ./app: Main Express application
+ *
+ * Purpose:
+ *    Bootstraps the backend by connecting to the database and
+ *    starting the server on the specified port. Acts as the runtime
+ *    initiator for all backend services.
+ * ===============================================
+ */
+
 const http = require("http");
 const connectDB = require("./config/db");
 const app = require("./app");

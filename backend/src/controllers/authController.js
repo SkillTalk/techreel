@@ -1,3 +1,29 @@
+/**
+ * ===============================================
+ * File: authController.js
+ * Created On: 08-June-2025
+ * Created By: Gautam Kumar
+ * Description:
+ *    This controller handles user authentication,
+ *    including signup and login operations.
+ *
+ *    - signup: Registers a new user, hashes password,
+ *              checks for duplicates, and stores data.
+ *    - login:  Authenticates user credentials and returns
+ *              a JWT token upon successful login.
+ *
+ * Dependencies:
+ *    - bcryptjs: For password hashing
+ *    - jsonwebtoken: For JWT generation
+ *    - User model: Mongoose model for user schema
+ *
+ * Purpose:
+ *    Core part of the authentication module in a MERN
+ *    stack application. This file connects to the
+ *    /api/auth/signup and /api/auth/login routes.
+ * ===============================================
+ */
+
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");

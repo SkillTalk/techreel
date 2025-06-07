@@ -1,3 +1,23 @@
+/*
+==================================================
+File: Profile.css
+Created On: 08-June-2025
+Created By: Gautam Kumar
+Description:
+  Styles for the user profile component in TechReel.
+
+Sections:
+  - .profile-container: Layout and card styling for profile view
+  - .profile-card p: Typography for profile details
+  - button: Styling for action buttons (e.g., logout)
+  - button:hover: Hover effect for better interactivity
+
+Purpose:
+  Provides a clean and minimal UI for the profile screen,
+  ensuring readability and user focus on profile data.
+==================================================
+*/
+
 .profile-container {
   max-width: 500px;
   margin: 40px auto;

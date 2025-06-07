@@ -1,3 +1,25 @@
+/*
+==================================================
+File: Signup.css
+Created On: 08-June-2025
+Created By: Gautam Kumar
+Description:
+  Styling for the authentication pages (Signup/Login) of TechReel.
+
+Sections:
+  - body: Sets global layout and gradient background
+  - .signup-container: Form container with glassmorphism and animation
+  - input fields: Styled for smooth interaction with hover/focus states
+  - button: Styled with hover effects and transitions
+  - .message: Optional message text styling
+  - .animated-input: Shared class for input animation and transitions
+  - @keyframes fadeIn: Animation used for form fade-in
+
+Purpose:
+  Provides a clean, modern, and interactive UI for the authentication
+  pages using a glass effect, consistent theme colors, and subtle animations.
+==================================================
+*/
 body {
   background: linear-gradient(to right, #141e30, #243b55);
   font-family: "Segoe UI", sans-serif;

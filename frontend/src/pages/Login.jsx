@@ -1,3 +1,30 @@
+/**
+ * ===============================================
+ * File: Login.jsx
+ * Created On: 08-June-2025
+ * Created By: Gautam Kumar
+ * Description:
+ *    React component for user login functionality.
+ *
+ * Features:
+ *    - Renders a login form with controlled inputs
+ *    - Validates user inputs before submission
+ *    - Sends POST request to /api/auth/login
+ *    - On success: shows toast, saves user/token to localStorage, redirects to /profile
+ *    - On failure: displays relevant error messages via toast
+ *
+ * Dependencies:
+ *    - react: For state and component management
+ *    - react-router-dom: For navigation and routing (useNavigate, Link)
+ *    - react-toastify: For toast-based user feedback
+ *    - Signup.css: Shared or renamed styles (optional)
+ *
+ * Purpose:
+ *    Core part of the frontend authentication flow in the TechReel web app.
+ *    Ensures user credentials are verified and stored properly for session handling.
+ * ===============================================
+ */
+
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
