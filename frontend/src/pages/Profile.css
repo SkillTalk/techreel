@@ -1,0 +1,28 @@
+.profile-container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  background: #fff;
+}
+
+.profile-card p {
+  font-size: 1.1rem;
+  margin: 10px 0;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #ff5c5c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #ff2a2a;
+}

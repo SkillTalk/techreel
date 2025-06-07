@@ -1,13 +1,15 @@
-require("dotenv").config(); // 🔥 This is MANDATORY to load .env variables
-
 const mongoose = require("mongoose");
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("MongoDB Connected...");
-  } catch (error) {
-    console.error(error.message);
+    const conn = await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+  } catch (err) {
+    console.error("❌ MongoDB Connection Error:", err.message);
     process.exit(1);
   }
 };
