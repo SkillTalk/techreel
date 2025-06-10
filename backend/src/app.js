@@ -32,7 +32,7 @@ const bodyParser = require("body-parser");
 require("dotenv").config();
 
 const authRoutes = require("./routes/authRoutes");
-// const userRoutes = require("./routes/userRoutes");
+const userRoutes = require("./routes/userRoutes");
 //const reelRoutes = require("./routes/reelRoutes");
 // Add other routes as needed...
 
@@ -45,7 +45,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // API Routes
 app.use("/api/auth", authRoutes);
-// app.use("/api/users", userRoutes);
+app.use("/api/users", userRoutes);
 //app.use("/api/reels", reelRoutes);
 // Add match, group, chat routes similarly
 

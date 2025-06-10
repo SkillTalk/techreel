@@ -25,9 +25,12 @@
 
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,20 +48,53 @@ const Profile = () => {
     }
   }, [navigate]);
 
+  const handleSearch = async () => {
+    try {
+      // const res = await axios.get(`/api/users/search?query=${query}`);
+      const res = await axios.get(
+        `http://localhost:5000/api/users/search?query=${query}`
+      );
+
+      setResults(res.data);
+    } catch (err) {
+      console.error("Search failed:", err);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
   if (!user) return <p>Loading profile...</p>;
 
   return (
     <div className="signup-container">
       <h2>Welcome, {user.username}!</h2>
       <p>Email: {user.email}</p>
-      <button
-        onClick={() => {
-          localStorage.clear();
-          navigate("/login");
-        }}
-      >
-        Logout
-      </button>
+      <button onClick={handleLogout}>Logout</button>
+
+      <hr />
+      <h3>Search Users</h3>
+      <input
+        type="text"
+        placeholder="Search by username"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
+      <button onClick={handleSearch}>Search</button>
+
+      <ul>
+        {results.map((otherUser) => (
+          <li
+            key={otherUser._id}
+            onClick={() => navigate(`/profile/${otherUser._id}`)}
+            style={{ cursor: "pointer", marginTop: "5px" }}
+          >
+            {otherUser.username} ({otherUser.email})
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
