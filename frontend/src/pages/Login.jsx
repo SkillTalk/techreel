@@ -28,11 +28,11 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import "./Signup.css"; // You can rename this to Login.css if separated
+import "./Signup.css"; // Reuse styling
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: "",
+    user_id: "",
     password: "",
   });
   const navigate = useNavigate();
@@ -45,8 +45,8 @@ const Login = () => {
   };
 
   const validateInputs = () => {
-    const { email, password } = formData;
-    if (!email || !password) {
+    const { user_id, password } = formData;
+    if (!user_id || !password) {
       toast.error("All fields are required");
       return false;
     }
@@ -70,7 +70,6 @@ const Login = () => {
         toast.success("Login successful! Redirecting...");
         localStorage.setItem("user", JSON.stringify(data.user));
         localStorage.setItem("token", data.token);
-
         setTimeout(() => navigate("/profile"), 1500);
       } else {
         toast.error(data.message || "Login failed");
@@ -82,13 +81,18 @@ const Login = () => {
 
   return (
     <div className="signup-container">
-      <h2>Login</h2>
+      <h1 className="login-heading">Hi !</h1>
+      <h2 className="login-subheading">Welcome Back</h2>
+      <p className="login-instruction">
+        Please enter your User ID and Password
+      </p>
+
       <form onSubmit={handleSubmit}>
         <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          value={formData.email}
+          name="user_id"
+          type="text"
+          placeholder="User ID"
+          value={formData.user_id}
           onChange={handleChange}
           className="animated-input"
         />
@@ -100,6 +104,13 @@ const Login = () => {
           onChange={handleChange}
           className="animated-input"
         />
+        <div className="login-options">
+          <label>
+            <input type="checkbox" style={{ marginRight: "5px" }} /> Remember Me
+          </label>
+          <span className="forgot-password">Forgot Password?</span>
+        </div>
+
         <button type="submit">Login</button>
       </form>
 

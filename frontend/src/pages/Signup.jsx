@@ -32,9 +32,11 @@ import "./Signup.css";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    username: "",
+    user_id: "",
     email: "",
     password: "",
+    qualification: "",
+    skills: "",
   });
   const navigate = useNavigate();
 
@@ -46,8 +48,8 @@ const Signup = () => {
   };
 
   const validateInputs = () => {
-    const { username, email, password } = formData;
-    if (!username || !email || !password) {
+    const { user_id, email, password, qualification, skills } = formData;
+    if (!user_id || !email || !password || !qualification || !skills) {
       toast.error("All fields are required");
       return false;
     }
@@ -78,9 +80,7 @@ const Signup = () => {
 
       if (res.ok) {
         toast.success("Signup successful! Redirecting...");
-        // Store in localStorage for profile page
         localStorage.setItem("user", JSON.stringify(data.user));
-
         setTimeout(() => navigate("/profile"), 1500);
       } else {
         toast.error(data.message || "Signup failed");
@@ -95,12 +95,11 @@ const Signup = () => {
       <h2>Sign Up</h2>
       <form onSubmit={handleSubmit}>
         <input
-          name="username"
+          name="user_id"
           type="text"
-          placeholder="Username"
-          value={formData.username}
+          placeholder="User ID (e.g., rahul_07)"
+          value={formData.user_id}
           onChange={handleChange}
-          className="animated-input"
         />
         <input
           name="email"
@@ -108,7 +107,6 @@ const Signup = () => {
           placeholder="Email"
           value={formData.email}
           onChange={handleChange}
-          className="animated-input"
         />
         <input
           name="password"
@@ -116,7 +114,20 @@ const Signup = () => {
           placeholder="Password"
           value={formData.password}
           onChange={handleChange}
-          className="animated-input"
+        />
+        <input
+          name="qualification"
+          type="text"
+          placeholder="Qualification (e.g., B.Tech)"
+          value={formData.qualification}
+          onChange={handleChange}
+        />
+        <input
+          name="skills"
+          type="text"
+          placeholder="Skills (e.g., React, Node, MongoDB)"
+          value={formData.skills}
+          onChange={handleChange}
         />
         <button type="submit">Sign Up</button>
       </form>

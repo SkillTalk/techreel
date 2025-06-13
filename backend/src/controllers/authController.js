@@ -23,47 +23,62 @@
  *    /api/auth/signup and /api/auth/login routes.
  * ===============================================
  */
-
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const OpenAI = require("openai");
 
+// ✅ Setup OpenAI SDK (for v4+) in CommonJS
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+// =======================
 // POST /api/auth/signup
+// =======================
 exports.signup = async (req, res) => {
   try {
-    console.log("📥 Received body:", req.body); // Add this line
+    const { user_id, password, qualification, skills } = req.body;
 
-    const { username, email, password } = req.body;
-
-    if (!email || !password || !username) {
-      console.log("❌ Missing required fields");
+    if (!user_id || !password || !qualification || !skills) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ user_id });
     if (existingUser) {
-      console.log("❌ User already exists");
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({ message: "User ID already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // 🎯 Generate bio using OpenAI GPT
+    const prompt = `Generate a short, stylish, professional bio for someone with qualification "${qualification}" and skills "${skills}".`;
+
+    const gptRes = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }],
+    });
+
+    const bio = gptRes.choices[0].message.content;
+
     const newUser = new User({
-      username,
-      email,
+      user_id,
       password: hashedPassword,
+      qualification,
+      skills,
+      bio,
     });
 
     const savedUser = await newUser.save();
-
-    console.log("✅ New user saved:", savedUser);
 
     return res.status(201).json({
       message: "User registered successfully",
       user: {
         _id: savedUser._id,
-        username: savedUser.username,
-        email: savedUser.email,
+        user_id: savedUser.user_id,
+        bio: savedUser.bio,
+        qualification: savedUser.qualification,
+        skills: savedUser.skills,
       },
     });
   } catch (err) {
@@ -72,43 +87,46 @@ exports.signup = async (req, res) => {
   }
 };
 
+// =======================
 // POST /api/auth/login
+// =======================
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { user_id, password } = req.body;
 
-    // Validate input
-    if (!email || !password) {
+    if (!user_id || !password) {
       return res
         .status(400)
-        .json({ message: "Email and password are required" });
+        .json({ message: "User ID and password are required" });
     }
 
-    // Check if user exists
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ user_id });
     if (!user) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({ message: "Invalid User ID or password" });
     }
 
-    // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(400).json({ message: "Invalid User ID or password" });
     }
 
-    // Generate JWT token
     const token = jwt.sign(
-      { userId: user._id, email: user.email },
+      { userId: user._id, user_id: user.user_id },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
+
     res.status(200).json({
       message: "Login successful",
       token,
       user: {
         _id: user._id,
-        username: user.username,
-        email: user.email,
+        user_id: user.user_id,
+        bio: user.bio,
+        qualification: user.qualification,
+        skills: user.skills,
+        website: user.website,
+        email: user.email || "", // optional
       },
     });
   } catch (err) {

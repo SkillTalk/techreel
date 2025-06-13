@@ -26,16 +26,40 @@
 
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema(
-  {
-    username: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    profilePictureUrl: { type: String, default: "" },
-    bio: { type: String, default: "" },
-    skills: { type: [String], default: [] },
+const userSchema = new mongoose.Schema({
+  user_id: { type: String, required: true, unique: true },
+  // email: { type: String }, // optional now
+  password: { type: String, required: true },
+  qualification: String,
+  skills: String,
+  bio: String,
+  website: String,
+  email: {
+    type: String,
+    required: false,
+    unique: false, // ✅ Remove uniqueness
+    sparse: true, // ✅ Optional: tells MongoDB to skip `null` values for index
   },
-  { timestamps: true }
-);
+  followers: [
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      status: {
+        type: String,
+        enum: ["pending", "accepted"],
+        default: "pending",
+      },
+    },
+  ],
+  following: [
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      status: {
+        type: String,
+        enum: ["pending", "accepted"],
+        default: "pending",
+      },
+    },
+  ],
+});
 
 module.exports = mongoose.model("User", userSchema);

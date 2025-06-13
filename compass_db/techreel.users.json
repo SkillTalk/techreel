@@ -1,0 +1,418 @@
+[{
+  "_id": {
+    "$oid": "681228b0f272c0ee2578748d"
+  },
+  "username": "testuser",
+  "email": "testuser@example.com",
+  "password": "$2b$10$tSKU2d2xWBs1qQ.08Sp4YuLkdLvpUY/gdPVkeF9N7qoQVLJx1Og.C",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-04-30T13:42:08.877Z"
+  },
+  "updatedAt": {
+    "$date": "2025-04-30T13:42:08.877Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6841f55f86b0c2cb68202617"
+  },
+  "username": "gautam",
+  "email": "gautam.iimtgn@gmail.com",
+  "password": "$2b$10$RerYop1nFP6FjViPPUqJv.SVxKvUMOwmaD2GSHayOeA1gMTMkvEiC",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-05T19:51:59.340Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T19:51:59.340Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6841fad749216b75db4daf04"
+  },
+  "username": "gautam",
+  "email": "gautam.iftgn@gmail.com",
+  "password": "$2b$10$Zr6m24StA7J5Cs3x491LPuPTOq/9nN9ubc5nXayC3fpAFHQMmeok6",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-05T20:15:19.530Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T20:15:19.530Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6841fb4f49216b75db4daf07"
+  },
+  "username": "gautam",
+  "email": "gautamtgn@gmail.com",
+  "password": "$2b$10$mlYfiubxJYz2cypv2CTBx.qXacWEXOavgVj/sbX3aIz6ls/UxptXO",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-05T20:17:19.147Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T20:17:19.147Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6841fe7a257f416ee5999fba"
+  },
+  "username": "gautam",
+  "email": "gautam.iimn@gmail.com",
+  "password": "$2b$10$vZ/hsUEjJKrypVgGBUKaUeaWHOAp/lBpquMHQNsTEaWV6jI7KVctW",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-05T20:30:50.887Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T20:30:50.887Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6841ff94257f416ee5999fbd"
+  },
+  "username": "gautam",
+  "email": "gautam@gmail.com",
+  "password": "$2b$10$icDrmHeSB/pb0lqPxeX4desy2FzuM69LZtV0/dBoWZLLVOEpBhIFe",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-05T20:35:32.471Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T20:35:32.471Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68420219257f416ee5999fc1"
+  },
+  "username": "gautam.iimn@gmail.com",
+  "email": "gam@gmail.com",
+  "password": "$2b$10$yG.fETO9JCnUBFvBkXpfYO031Xh3vS6zY8jn6VDTfw4IAX1m0tUee",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-05T20:46:17.568Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T20:46:17.568Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6842039f257f416ee5999fc6"
+  },
+  "username": "gauta",
+  "email": "gauam@gmail.com",
+  "password": "$2b$10$2RreqDwz52VKMaGzP80VVuJ8Jb0d/M/qfggumJ/U2BtX0yZJYsASG",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-05T20:52:47.435Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-05T20:52:47.435Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6842d330723a954faea5c269"
+  },
+  "username": "gautam",
+  "email": "gtm@gmail.com",
+  "password": "$2b$10$aB.rulStP9emQMAKu/fx.OAoFexcQYuO6kpCuSt9xCmZSK3t6toFe",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-06T11:38:24.740Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-06T11:38:24.740Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6842dc576580298a030c9d05"
+  },
+  "username": "gautam.iimn@gmail.com",
+  "email": "gautll@gmail.com",
+  "password": "$2b$10$zNjcr3i3mhfHdnHfYqRPcutwei7hbuD5DZB8fDJTTZTBFnTb9EcxK",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-06T12:17:27.197Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-06T12:17:27.197Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6842dcc16580298a030c9d08"
+  },
+  "username": "ram",
+  "email": "ram@gmail.com",
+  "password": "$2b$10$Py7JDVox05llrK3beddBC.MH.DuOywn5KKwpmdACNJkjoH7aYpMH.",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-06T12:19:13.316Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-06T12:19:13.316Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6842e4c96580298a030c9d0c"
+  },
+  "username": "rahul",
+  "email": "rahul@gmail.com",
+  "password": "$2b$10$Jq0v1fFBpjD.fVOVLwxdUu3cZ17ZKYOHPGiC.gKAb05yS/F6tikDi",
+  "profilePictureUrl": "",
+  "bio": "Engineer",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-06T12:53:29.013Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-11T18:43:17.363Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6842e8c3e2258e326cda79e9"
+  },
+  "username": "ashish",
+  "email": "ashish@gmail.com",
+  "password": "$2b$10$Q.e3YSKh3hOteriTbrI.3exoaf/LOAEp1YPap9iw3dmvpj7.WEMXq",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-06T13:10:27.955Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-06T13:10:27.955Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684475bc5926994b2fbaa59d"
+  },
+  "username": "Gautam Kumar ",
+  "email": "gautam.iimtgnoida@gmail.com",
+  "password": "$2b$10$Z/cnlhEFKp9bEDKVqh2qE.ULgvHdIOjPExVXZGFua75DNWVaL7En2",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-07T17:24:12.898Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-07T17:24:12.898Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6844840dc19cb6f2669c1479"
+  },
+  "username": "amarjha",
+  "email": "amarjha@gmail.com",
+  "password": "$2b$10$ZpMT2ud82FmwlrhY72AbI.KnaChgoJRG90Thghwmq0F/wE1A4K0nq",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-07T18:25:17.165Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-07T18:25:17.165Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68449b2ac19cb6f2669c147d"
+  },
+  "username": "gautam.kumar",
+  "email": "gautam@example.com",
+  "password": "$2b$10$bX//j1ab5HPRtqfRIkYzPuBMMK5EpI1pa7lCCX/SnOVnGVAIMAX5S",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-07T20:03:54.491Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-07T20:03:54.491Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68449c3bc19cb6f2669c1483"
+  },
+  "username": "ankit kumar",
+  "email": "ankit@gmail.com",
+  "password": "$2b$10$lBfO27dOxQDx.c8wzCUnHerz13APiLykYzkdQsr2MGZQB9ZNkJsvu",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-07T20:08:27.631Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-07T20:08:27.631Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6844a0801283ba9a55fbb69b"
+  },
+  "username": "ridhi",
+  "email": "ridhi@gmail.com",
+  "password": "$2b$10$Gwt5hmB4qy7sQxMY0Ae26eH6Eb4VW7d9C10TZwQB4LgDLmg5iXo1q",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-07T20:26:40.382Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-07T20:26:40.382Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6844a0a41283ba9a55fbb69e"
+  },
+  "username": "Sidhi",
+  "email": "sidhi@gmail.com",
+  "password": "$2b$10$hPcPPYEin6qSHXsP86ZMm.iS3TkXpayvvoUIkYh737uvn67N0NgI6",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-07T20:27:16.669Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-07T20:27:16.669Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684859970ad8fb61dcf9dc59"
+  },
+  "username": "kamlesh",
+  "email": "kamlesh@gmail.com",
+  "password": "$2b$10$U2bi7AdIgJeuxD2Z/FmAD.Zm.kCC4xMqYew2mDiaJAyKl/Bg59FSS",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-10T16:13:11.353Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-10T16:13:11.353Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "684873572a8791f324d99f20"
+  },
+  "username": "kishore",
+  "email": "kishore@gmail.com",
+  "password": "$2b$10$dy.2xm7TeCcO4V25ZpNmz.EcoJaiW1Kr6nvJ22OGYMY98YKcpc75i",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-10T18:03:03.509Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-10T18:03:03.509Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "68487b733b531a3e9682aedb"
+  },
+  "username": "prem",
+  "email": "prem@gmail.com",
+  "password": "$2b$10$.Rdvit/I2Sl9Tmwk4mHpqeLUIh53ruAG/nlazr3JvesyWOgfcmExW",
+  "profilePictureUrl": "",
+  "bio": "",
+  "skills": [],
+  "createdAt": {
+    "$date": "2025-06-10T18:37:39.466Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-10T18:37:39.466Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "6849ae693061351f43e1829e"
+  },
+  "username": "ambar",
+  "email": "ambar@gmail.com",
+  "password": "$2b$10$S5v8jtSskLuCRqaRpb1v8.8CnjojIgg4T9CbSD5be0ufNHYljaV0S",
+  "profilePictureUrl": "",
+  "bio": "mai hi ek bio hu bro",
+  "skills": [
+    "python",
+    "Java",
+    "C++"
+  ],
+  "createdAt": {
+    "$date": "2025-06-11T16:27:21.089Z"
+  },
+  "updatedAt": {
+    "$date": "2025-06-11T16:27:21.089Z"
+  },
+  "__v": 0
+}]
