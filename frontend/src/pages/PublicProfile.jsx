@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { BASE_URL } from "../utils/api"; // ✅ Replace hardcoded URLs
 
 const PublicProfile = () => {
-  const { id } = useParams(); // public userId from the URL
-  const [user, setUser] = useState(null); // user being viewed
-  const [currentUser, setCurrentUser] = useState(null); // logged-in user
-  const [followStatus, setFollowStatus] = useState(null); // "accepted", "pending", or null
+  const { id } = useParams();
+  const [user, setUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [followStatus, setFollowStatus] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -17,31 +18,29 @@ const PublicProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/users/${id}`);
+        const res = await axios.get(`${BASE_URL}/users/${id}`);
         setUser(res.data.user);
 
         if (currentUser && res.data.user.followers) {
           const match = res.data.user.followers.find(
             (f) => f.user === currentUser._id || f.user?._id === currentUser._id
           );
-          if (match) setFollowStatus(match.status); // "pending" or "accepted"
+          if (match) setFollowStatus(match.status);
         }
       } catch (err) {
         console.error("Error fetching user:", err);
         setError("User not found");
       }
     };
-    if (id) fetchProfile();
+
+    if (id && currentUser) fetchProfile();
   }, [id, currentUser]);
 
   const handleFollow = async () => {
     try {
-      const res = await axios.post(
-        `http://localhost:5000/api/users/${id}/follow`,
-        {
-          senderId: currentUser._id,
-        }
-      );
+      await axios.post(`${BASE_URL}/users/${id}/follow`, {
+        senderId: currentUser._id,
+      });
       setFollowStatus("pending");
     } catch (err) {
       console.error("Follow error:", err);
@@ -82,7 +81,6 @@ const PublicProfile = () => {
           )}
         </p>
 
-        {/* Show Follow button if not same user */}
         {currentUser && currentUser._id !== user._id && (
           <div style={{ marginTop: "1rem" }}>
             {followStatus === "accepted" ? (

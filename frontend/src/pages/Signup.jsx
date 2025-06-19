@@ -24,6 +24,7 @@
  *    validating user input and connecting with the backend signup API.
  * ===============================================
  */
+import { BASE_URL } from "../utils/api";
 
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -65,30 +66,30 @@ const Signup = () => {
     return true;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateInputs()) return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateInputs()) return;
 
-    try {
-      const res = await fetch("http://localhost:5000/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+  try {
+    const res = await fetch(`${BASE_URL}/auth/signup`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (res.ok) {
-        toast.success("Signup successful! Redirecting...");
-        localStorage.setItem("user", JSON.stringify(data.user));
-        setTimeout(() => navigate("/profile"), 1500);
-      } else {
-        toast.error(data.message || "Signup failed");
-      }
-    } catch (err) {
-      toast.error("Server error during signup");
+    if (res.ok) {
+      toast.success("Signup successful! Redirecting...");
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setTimeout(() => navigate("/profile"), 1500);
+    } else {
+      toast.error(data.message || "Signup failed");
     }
-  };
+  } catch (err) {
+    toast.error("Server error during signup");
+  }
+};
 
   return (
     <div className="signup-container">

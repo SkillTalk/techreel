@@ -23,9 +23,9 @@
  * Purpose:
  *    Acts as the entry point for initializing the Express app.
  *    This file is imported and run by `server.js`.
- * ===============================================
- */
+*/
 
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -33,25 +33,28 @@ require("dotenv").config();
 
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
-//const reelRoutes = require("./routes/reelRoutes");
-// Add other routes as needed...
 
 const app = express();
 
 // Middlewares
 app.use(cors());
-app.use(bodyParser.json()); // Parse JSON requests
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// API Routes
+// API Routes (always place before static)
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-//app.use("/api/reels", reelRoutes);
-// Add match, group, chat routes similarly
 
-// Root Test Route
-app.get("/", (req, res) => {
+// Root API test
+app.get("/api", (req, res) => {
   res.send("TechReel backend is running!");
+});
+
+// ✅ Serve frontend after API routes
+const frontendPath = path.join(__dirname, "../frontend_build");
+app.use(express.static(frontendPath));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
 });
 
 module.exports = app;

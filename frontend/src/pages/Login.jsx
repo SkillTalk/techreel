@@ -24,6 +24,7 @@
  *    Ensures user credentials are verified and stored properly for session handling.
  * ===============================================
  */
+import { BASE_URL } from "../utils/api";
 
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -58,8 +59,8 @@ const Login = () => {
     if (!validateInputs()) return;
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
+	const res = await fetch(`${BASE_URL}/auth/login`, {
+	method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });

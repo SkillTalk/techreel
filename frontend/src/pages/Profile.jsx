@@ -26,6 +26,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { BASE_URL } from "../utils/api"; // ✅ Add this
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -45,9 +46,8 @@ const Profile = () => {
       const parsedUser = JSON.parse(storedUser);
       const fetchUser = async () => {
         try {
-          const res = await axios.get(
-            `http://localhost:5000/api/users/${parsedUser._id}`
-          );
+          const res = await axios.get(`${BASE_URL}/users/${parsedUser._id}`);
+          if (!res.data.user) throw new Error("User not found");
           setUser(res.data.user);
           setEditForm({
             bio: res.data.user.bio || "",
@@ -57,7 +57,7 @@ const Profile = () => {
           setFollowing(res.data.user.following || []);
 
           const notifRes = await axios.get(
-            `http://localhost:5000/api/users/${parsedUser._id}/notifications`
+            `${BASE_URL}/users/${parsedUser._id}/notifications`
           );
           setNotifications(notifRes.data.pending || []);
         } catch (err) {
@@ -74,9 +74,7 @@ const Profile = () => {
 
   const handleSearch = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/users/search?query=${query}`
-      );
+      const res = await axios.get(`${BASE_URL}/users/search?query=${query}`);
       setResults(res.data);
     } catch (err) {
       console.error("Search failed:", err);
@@ -90,10 +88,7 @@ const Profile = () => {
 
   const handleSaveChanges = async () => {
     try {
-      const res = await axios.put(
-        `http://localhost:5000/api/users/${user._id}`,
-        editForm
-      );
+      const res = await axios.put(`${BASE_URL}/users/${user._id}`, editForm);
       setUser(res.data.user);
       setEditMode(false);
     } catch (err) {
@@ -103,20 +98,17 @@ const Profile = () => {
 
   const handleAcceptFollow = async (followerId) => {
     try {
-      await axios.put(
-        `http://localhost:5000/api/users/${user._id}/follow/accept`,
-        { followerId }
-      );
+      await axios.put(`${BASE_URL}/users/${user._id}/follow/accept`, {
+        followerId,
+      });
 
-      const updatedRes = await axios.get(
-        `http://localhost:5000/api/users/${user._id}`
-      );
+      const updatedRes = await axios.get(`${BASE_URL}/users/${user._id}`);
       setUser(updatedRes.data.user);
       setFollowers(updatedRes.data.user.followers || []);
       setFollowing(updatedRes.data.user.following || []);
 
       const notifRes = await axios.get(
-        `http://localhost:5000/api/users/${user._id}/notifications`
+        `${BASE_URL}/users/${user._id}/notifications`
       );
       setNotifications(notifRes.data.pending || []);
     } catch (error) {
@@ -232,8 +224,7 @@ const Profile = () => {
         <ul>
           {followers.map((f) => (
             <li key={f.user._id || f.user}>
-              {typeof f.user === "object" ? f.user.user_id : f.user} ({f.status}
-              )
+              {typeof f.user === "object" ? f.user.user_id : f.user} ({f.status})
             </li>
           ))}
         </ul>
@@ -246,8 +237,7 @@ const Profile = () => {
         <ul>
           {following.map((f) => (
             <li key={f.user._id || f.user}>
-              {typeof f.user === "object" ? f.user.user_id : f.user} ({f.status}
-              )
+              {typeof f.user === "object" ? f.user.user_id : f.user} ({f.status})
             </li>
           ))}
         </ul>
