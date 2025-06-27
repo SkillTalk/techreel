@@ -1,0 +1,57 @@
+.inbox-wrapper {
+  background: rgba(15, 15, 30, 0.75);
+  padding: 20px;
+  border-radius: 16px;
+  max-width: 600px;
+  margin: 80px auto;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.inbox-title {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #0ff;
+}
+
+.no-convo-text {
+  text-align: center;
+  font-size: 1rem;
+  color: #aaa;
+}
+
+.conversation-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.conversation-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.conversation-card:hover {
+  background: rgba(0, 255, 255, 0.1);
+  border-color: rgba(0, 255, 255, 0.3);
+}
+
+.username {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.preview {
+  font-size: 0.95rem;
+  color: #ccc;
+  margin-top: 5px;
+}
+

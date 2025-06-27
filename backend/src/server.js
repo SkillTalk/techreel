@@ -25,16 +25,18 @@
  *    initiator for all backend services.
  * ===============================================
  */
-require("dotenv").config();
-console.log("✅ MONGO URI:", process.env.MONGO_URI);
 
+/*
+
+require("dotenv").config();
 const http = require("http");
 const app = require("./app");
 const mongoose = require("mongoose");
+const { Server } = require("socket.io");
 
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB
+// MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -42,11 +44,114 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log("✅ MongoDB Connected Successfully"))
 .catch((err) => {
   console.error("❌ MongoDB Connection Error:", err);
-  process.exit(1); // crash cleanly on failure
+  process.exit(1);
 });
 
-// Create and start server
+// Create and start HTTP server
 const server = http.createServer(app);
+
+// Socket.IO setup
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("🔌 User connected:", socket.id);
+
+  socket.on("follow", (data) => {
+    io.emit("follow-update", data);
+  });
+
+  socket.on("unfollow", (data) => {
+    io.emit("follow-update", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("❌ User disconnected:", socket.id);
+  });
+});
+
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running at http://0.0.0.0:${PORT}`);
 });
+*/
+
+
+
+
+require("dotenv").config();
+const http = require("http");
+const app = require("./app");
+const mongoose = require("mongoose");
+const { Server } = require("socket.io");
+
+const PORT = process.env.PORT || 5000;
+
+// 1. MongoDB connection
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log("✅ MongoDB Connected Successfully"))
+.catch((err) => {
+  console.error("❌ MongoDB Connection Error:", err);
+  process.exit(1);
+});
+
+// 2. Create and start HTTP server
+const server = http.createServer(app);
+
+// 3. Socket.IO setup
+const io = new Server(server, {
+  cors: {
+    origin: "*", // Allow frontend access
+  },
+});
+
+// 4. In-memory map of users: userId -> socketId
+const users = new Map();
+
+io.on("connection", (socket) => {
+  console.log("🔌 User connected:", socket.id);
+
+  // ✅ Register user
+  socket.on("addUser", (userId) => {
+    users.set(userId, socket.id);
+    console.log(`✅ User ${userId} registered with socket ${socket.id}`);
+  });
+
+  // ✅ Real-time message delivery
+  socket.on("sendMessage", ({ senderId, receiverId, text }) => {
+    const receiverSocketId = users.get(receiverId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("getMessage", {
+        senderId,
+        text,
+        timestamp: Date.now(),
+      });
+    }
+  });
+
+  // ✅ Follow/Unfollow events (your original logic)
+  socket.on("follow", (data) => {
+    io.emit("follow-update", data);
+  });
+
+  socket.on("unfollow", (data) => {
+    io.emit("follow-update", data);
+  });
+
+  // ✅ No cleanup on disconnect
+  socket.on("disconnect", () => {
+    console.log("❌ Socket disconnected:", socket.id);
+    // Do NOT remove from users map — persistent chat design
+  });
+});
+
+// 5. Start the server
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running at http://0.0.0.0:${PORT}`);
+});
+

@@ -24,6 +24,8 @@
  *    Ensures user credentials are verified and stored properly for session handling.
  * ===============================================
  */
+
+
 import { BASE_URL } from "../utils/api";
 
 import React, { useState } from "react";
@@ -54,36 +56,47 @@ const Login = () => {
     return true;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateInputs()) return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateInputs()) return;
 
-    try {
-	const res = await fetch(`${BASE_URL}/auth/login`, {
-	method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+  try {
+    const res = await fetch(`${BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
+    console.log("🔍 Login response raw:", data); // 👈 Add this
+    console.log("🔍 res.ok:", res.ok); // 👈 Add this
 
-      if (res.ok) {
-        toast.success("Login successful! Redirecting...");
-        localStorage.setItem("user", JSON.stringify(data.user));
-        localStorage.setItem("token", data.token);
-        setTimeout(() => navigate("/profile"), 1500);
-      } else {
-        toast.error(data.message || "Login failed");
+    if (res.ok) {
+      toast.success("Login successful! Redirecting...");
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", data.token);
+
+      if (data.user && data.user._id) {
+        localStorage.setItem("userId", data.user._id);
+        console.log("✅ userId saved:", data.user._id);
       }
-    } catch (err) {
-      toast.error("Server error during login");
+
+      setTimeout(() => navigate("/profile"), 1500);
+    } else {
+      console.error("❌ Login failed response:", data);
+      toast.error(data.message || "Login failed");
     }
-  };
+  } catch (err) {
+    console.error("❌ Server error during login:", err);
+    toast.error("Server error during login");
+  }
+};
+
+
 
   return (
     <div className="signup-container">
-      <h1 className="login-heading">Hi !</h1>
-      <h2 className="login-subheading">Welcome Back</h2>
+      <h1 className="skilltalk-logo">SkillTalk</h1>
       <p className="login-instruction">
         Please enter your User ID and Password
       </p>
@@ -112,7 +125,7 @@ const Login = () => {
           <span className="forgot-password">Forgot Password?</span>
         </div>
 
-        <button type="submit">Login</button>
+        <button type="submit">Enter SkillTalk</button>
       </form>
 
       <p style={{ marginTop: "1rem" }}>

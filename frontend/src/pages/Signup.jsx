@@ -80,20 +80,34 @@ const handleSubmit = async (e) => {
     const data = await res.json();
 
     if (res.ok) {
+      console.log("USER DATA (Signup):", data.user); // 👈 Log to debug
+
       toast.success("Signup successful! Redirecting...");
       localStorage.setItem("user", JSON.stringify(data.user));
+
+      if (data.user && data.user._id) {
+        localStorage.setItem("userId", data.user._id); // ✅ Safe assignment
+      }
+
       setTimeout(() => navigate("/profile"), 1500);
     } else {
       toast.error(data.message || "Signup failed");
     }
+
   } catch (err) {
     toast.error("Server error during signup");
   }
 };
 
+
+
   return (
     <div className="signup-container">
-      <h2>Sign Up</h2>
+	  <h2>
+  <span className="skilltalk-brand">SkillTalk</span><br />
+  Sign Up
+</h2>
+
       <form onSubmit={handleSubmit}>
         <input
           name="user_id"
@@ -130,7 +144,7 @@ const handleSubmit = async (e) => {
           value={formData.skills}
           onChange={handleChange}
         />
-        <button type="submit">Sign Up</button>
+        <button type="submit">Start Talking</button>
       </form>
 
       <p style={{ marginTop: "1rem" }}>

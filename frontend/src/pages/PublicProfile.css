@@ -1,0 +1,111 @@
+.public-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: Arial, sans-serif;
+}
+
+.public-card {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  max-width: 600px;
+  width: 90%;
+  color: #fff;
+}
+
+.public-heading {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  color: #00ffff;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.public-input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  margin-bottom: 14px;
+  border-radius: 4px;
+  border: 1px solid #00ffff;
+  background-color: transparent;
+  color: #fff;
+}
+
+.followBtn {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid #00ffff;
+  color: #00ffff;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  margin: 0 6px;
+  backdrop-filter: blur(3px);
+}
+
+.followBtn:hover {
+  background-color: rgba(0, 255, 255, 0.1);
+  color: #00c3ff;
+  box-shadow: 0 0 10px #00c3ff;
+}
+
+.public-followBtnDisabled {
+  background-color: #555;
+  color: #ccc;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: not-allowed;
+}
+
+.public-unfollowBtn {
+  background-color: #ff4d4d;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.2s;
+}
+
+
+.stats-button {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid #00ffff;
+  color: #00ffff;
+  font-weight: bold;
+  text-align: center;
+  font-size: 1rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  backdrop-filter: blur(3px);
+}
+.stats-button + .stats-button {
+  margin-left: 15px;
+}
+
+
+
+.public-name {
+  font-size: 1.8rem;
+  text-align: center;
+  color: #00ffff;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 1.5rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+

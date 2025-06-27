@@ -1,0 +1,67 @@
+/* Following.css */
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.followers-wrapper {
+  max-width: 400px;
+  width: 90%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  padding: 2rem;
+  border-radius: 12px;
+  color: #ffffff;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+  animation: fadeInUp 0.8s ease-in-out;
+  text-align: center;
+}
+
+.followers-wrapper h2 {
+  color: #00ffff;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.followers-wrapper ul {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 20px;
+  text-align: left;
+}
+
+.followers-wrapper li {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #00ffff;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.followers-wrapper li:hover {
+  background-color: rgba(0, 255, 255, 0.15);
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

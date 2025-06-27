@@ -20,138 +20,133 @@ Purpose:
   pages using a glass effect, consistent theme colors, and subtle animations.
 ==================================================
 */
-/* import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { toast } from "react-toastify";
-import "./Signup.css";
 
-const Signup = () => {
-  const [formData, setFormData] = useState({
-    user_id: "",
-    password: "",
-    qualification: "",
-    skills: "",
-  });
-  const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const validateInputs = () => {
-    const { user_id, password, qualification, skills } = formData;
-    if (!user_id || !password || !qualification || !skills) {
-      toast.error("All fields are required");
-      return false;
-    }
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return false;
-    }
-    return true;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateInputs()) return;
-
-    try {
-      const res = await fetch("http://localhost:5000/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        toast.success("Signup successful! Redirecting...");
-        localStorage.setItem("user", JSON.stringify(data.user));
-        setTimeout(() => navigate("/profile"), 1500);
-      } else {
-        toast.error(data.message || "Signup failed");
-      }
-    } catch (err) {
-      toast.error("Server error during signup");
-    }
-  };
-
-  return (
-    <div className="signup-container">
-      <h2>Sign Up</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          name="user_id"
-          type="text"
-          placeholder="User ID (e.g., rahul_07)"
-          value={formData.user_id}
-          onChange={handleChange}
-        />
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-        />
-        <input
-          name="qualification"
-          type="text"
-          placeholder="Qualification (e.g., B.Tech)"
-          value={formData.qualification}
-          onChange={handleChange}
-        />
-        <input
-          name="skills"
-          type="text"
-          placeholder="Skills (e.g., React, Node, MongoDB)"
-          value={formData.skills}
-          onChange={handleChange}
-        />
-        <button type="submit">Sign Up</button>
-      </form>
-
-      <p style={{ marginTop: "1rem" }}>
-        Already have an account? <Link to="/login">Login here</Link>
-      </p>
-    </div>
-  );
-};
-
-export default Signup; */
-
-.signup-container {
-  max-width: 400px;
-  margin: auto;
-  padding: 2rem;
-  border-radius: 8px;
-  background: #f0f0f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+/* Full-page background */
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-image: url("/home/gautam_iimtgn/techreel/frontend/public/assets/signup_page.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Fade-in animation keyframes */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Signup container */
+.signup-container {
+  width: 100%;
+  max-width: 450px;
+  padding: 1.4rem;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.6); /* dark translucent */
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+  animation: fadeInUp 0.8s ease-in-out;
+  color: #ffffff;
+  backdrop-filter: blur(8px); /* glassmorphism effect */
+}
+
+/* Heading */
 .signup-container h2 {
   text-align: center;
+  font-family: 'Orbitron', sans-serif;
   margin-bottom: 20px;
+  color: #00ffff; /* neon cyan (chemistry theme) */
+  font-weight: bold;
+  font-size: 1.8rem;
 }
 
+/* Input fields */
 .signup-container input {
   display: block;
   width: 100%;
   padding: 10px;
   margin-bottom: 12px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+  border-radius: 6px;
+  border: 1px solid #00ffff;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 
+.signup-container input::placeholder {
+  color: #cccccc;
+}
+
+/* Submit button */
 .signup-container button {
   width: 100%;
   padding: 10px;
-  background: #4caf50;
-  color: white;
+  background: linear-gradient(135deg, #00ff94, #00c3ff);
+  color: #000;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+  animation: glowPulse 2s infinite alternate;
 }
+
+.signup-container button:hover {
+  background: linear-gradient(135deg, #00c3ff, #00ff94);
+}
+
+/* Bottom text */
+.signup-container p {
+  text-align: center;
+  color: #dddddd;
+  margin-top: 10px;
+}
+
+.signup-container a {
+  color: #00ffff;
+  text-decoration: none;
+}
+.signup-container a:hover {
+  text-decoration: underline;
+}
+.signup-container input:focus {
+  outline: none;
+  border-color: #00ffff;
+  box-shadow: 0 0 8px #00ffff;
+}
+
+
+@keyframes glowPulse {
+  from {
+    box-shadow: 0 0 5px #00fff7, 0 0 10px #00c3ff;
+  }
+  to {
+    box-shadow: 0 0 15px #00fff7, 0 0 25px #00c3ff;
+  }
+}
+@import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+
+.skilltalk-logo,
+.skilltalk-brand {
+  display: block;
+  font-family: 'Lobster', cursive;
+  font-size: 2.5rem;
+  font-weight: normal;
+  letter-spacing: 0.5px;
+  text-align: center;
+  margin-bottom: 1rem;
+  background: linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
