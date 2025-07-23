@@ -1,6 +1,7 @@
-
+/*
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import imageCompression from "browser-image-compression";
 import axios from "axios";
 import { BASE_URL } from "../utils/api";
 import "./Profile.css";
@@ -58,34 +59,254 @@ const Profile = () => {
   };
 
   if (!user) return <p>Loading profile...</p>;
+return (
+  <div className="profile-wrapper">
+    <div className="profile-header">
+      <div className="dropdown">
+        <button className="dropdown-toggle">Menu ▾</button>
+        <div className="dropdown-menu">
+          <button onClick={handleLogout}>Logout</button>
+          <button onClick={() => navigate("/edit-profile")}>Edit Profile</button>
+        </div>
+      </div>
+    </div>
+
+    <div className="top-bar-buttons">
+      <button className="neon-button" onClick={() => navigate("/search-user")}>🔍</button>
+      <div className="notification-wrapper">
+        <button className="neon-button" onClick={() => navigate("/notifications")}>🔔</button>
+        {notificationCount > 0 && <span className="notification-dot" />}
+      </div>
+      <button className="neon-button talk-button" onClick={() => navigate(`/inbox/${user._id}`)}>Talk</button>
+      <button className="neon-button match-button" onClick={() => navigate("/match")}>💫 Match</button>
+    </div>
+
+<div className="user-section">
+
+  <div className="profile-image-container">
+    <img
+      src={user.profileImage || "/../../public/assets/signup_page.png"}
+      alt="Profile"
+      className="profile-image"
+      onClick={() => {
+        if (user.profileImage) {
+          const choice = window.confirm("View image?\nClick Cancel to change image.");
+          if (choice) {
+            window.open(user.profileImage, "_blank");
+          } else {
+            document.getElementById("imageUpload").click();
+          }
+        } else {
+          document.getElementById("imageUpload").click();
+        }
+      }}
+    />
+    <input
+      type="file"
+      id="imageUpload"
+      accept="image/*"
+      style={{ display: "none" }}
+      onChange={async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          const imageBase64 = reader.result;
+          try {
+            const token = localStorage.getItem("token");
+            const res = await axios.post(
+              `${BASE_URL}/users/${user._id}/upload-image`,
+              { imageBase64 },
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setUser((prev) => ({ ...prev, profileImage: res.data.imageUrl }));
+          } catch (err) {
+            console.error("Upload failed:", err);
+            alert("Image upload failed.");
+          }
+        };
+        reader.readAsDataURL(file);
+      }}
+    />
+  </div>
+
+  <div className="user-basic">
+    <p><strong>{user.user_id}</strong></p>
+  </div>
+
+
+
+      <div className="user-stats">
+        <button className="stats-button" onClick={() => navigate("/followers")}>
+          Follower<br />{followerCount}
+        </button>
+        <button className="stats-button" onClick={() => navigate("/following")}>
+          Following<br />{followingCount}
+        </button>
+      </div>
+    </div>
+
+    <div className="bio-box">
+      <p><strong>Bio:</strong></p>
+      <p>{user.bio || "No bio added yet."}</p>
+    </div>
+  </div>
+);
+
+};
+
+export default Profile;
+*/
+
+
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import imageCompression from "browser-image-compression";
+import axios from "axios";
+import { BASE_URL } from "../utils/api";
+import "./Profile.css";
+
+const Profile = () => {
+  const [user, setUser] = useState(null);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [notificationCount, setNotificationCount] = useState(0);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+
+      const fetchUser = async () => {
+        try {
+          const res = await axios.get(`${BASE_URL}/users/${parsedUser._id}`);
+          setUser(res.data.user);
+          const acceptedFollowers = res.data.user.followers?.filter(f => f.status === "accepted") || [];
+          const acceptedFollowing = res.data.user.following?.filter(f => f.status === "accepted") || [];
+          setFollowerCount(acceptedFollowers.length);
+          setFollowingCount(acceptedFollowing.length);
+        } catch (err) {
+          console.error("Failed to fetch user:", err);
+          navigate("/login");
+        }
+      };
+
+      const fetchNotifications = async () => {
+        try {
+          const res = await axios.get(`${BASE_URL}/users/${parsedUser._id}/notifications`);
+          const count = Array.isArray(res.data.pending) ? res.data.pending.length : 0;
+          setNotificationCount(count);
+        } catch (err) {
+          console.error("Failed to fetch notifications:", err);
+        }
+      };
+
+      fetchUser();
+      fetchNotifications();
+    } else {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
+  const handleImageUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const options = {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1024,
+    useWebWorker: true,
+  };
+
+  try {
+    const compressedFile = await imageCompression(file, options);
+    const base64 = await toBase64(compressedFile);
+    const token = localStorage.getItem("token");
+
+    const res = await axios.post(
+      `${BASE_URL}/users/${user._id}/upload-image`,
+      { imageBase64: base64 },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    setUser((prev) => ({ ...prev, profileImage: res.data.imageUrl }));
+    alert("Image uploaded!");
+  } catch (err) {
+    console.error("Upload failed:", err);
+    alert("Image upload failed.");
+  }
+};
+
+const toBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+
+  if (!user) return <p>Loading profile...</p>;
 
   return (
     <div className="profile-wrapper">
       <div className="profile-header">
-        <button className="logout-button" onClick={handleLogout}>Logout</button>
-        <button className="edit-profile-button" onClick={() => navigate("/edit-profile")}>Edit Profile</button>
-      </div>
-
-      <div className="top-bar">
-        <div className="top-bar-buttons">
-          <button className="neon-button" onClick={() => navigate("/search-user")}>🔍</button>
-          <div className="notification-wrapper">
-            <button className="neon-button" onClick={() => navigate("/notifications")}>🔔</button>
-            {notificationCount > 0 && <span className="notification-dot" />}
+        <div className="dropdown">
+          <button className="dropdown-toggle">Menu ▾</button>
+          <div className="dropdown-menu">
+            <button onClick={handleLogout}>Logout</button>
+            <button onClick={() => navigate("/edit-profile")}>Edit Profile</button>
           </div>
-          <button
-            className={`neon-button talk-button ${hasNewMessages ? "talk-flash" : ""}`}
-          onClick={() => navigate(`/inbox/${user._id}`)}
-          >
-            Talk
-          </button>
         </div>
       </div>
 
+      <div className="top-bar-buttons">
+        <button className="neon-button" onClick={() => navigate("/search-user")}>🔍</button>
+        <div className="notification-wrapper">
+          <button className="neon-button" onClick={() => navigate("/notifications")}>🔔</button>
+          {notificationCount > 0 && <span className="notification-dot" />}
+        </div>
+        <button className="neon-button talk-button" onClick={() => navigate(`/inbox/${user._id}`)}>Talk</button>
+        <button className="neon-button match-button" onClick={() => navigate("/match")}>💫 Match</button>
+      </div>
+
       <div className="user-section">
+        <div className="profile-image-container">
+          <img
+            src={user.profileImage || "/assets/signup_page.png"}
+            alt="Profile"
+            className="profile-image"
+            onClick={() => {
+              if (user.profileImage) {
+                const choice = window.confirm("View image?\nClick Cancel to change image.");
+                if (choice) {
+                  window.open(user.profileImage, "_blank");
+                } else {
+                  document.getElementById("imageUpload").click();
+                }
+              } else {
+                document.getElementById("imageUpload").click();
+              }
+            }}
+          />
+          <input
+            type="file"
+            id="imageUpload"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleImageUpload}
+          />
+        </div>
+
         <div className="user-basic">
           <p><strong>{user.user_id}</strong></p>
-          <p>{user.email}</p>
         </div>
 
         <div className="user-stats">

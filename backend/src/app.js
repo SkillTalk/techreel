@@ -34,18 +34,25 @@ require("dotenv").config();
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const messageRoutes = require("./routes/messageRoutes");
+const groupRoutes = require("./routes/groupRoutes");
+const groupMessageRoutes = require("./routes/groupMessageRoutes"); // ✅ ADD THIS
 
 const app = express();
 
 // Middlewares
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: "100mb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: "100mb", parameterLimit: 100000 }));
+
+
 app.use("/api/messages", messageRoutes);
 
 // API Routes (always place before static)
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/groups", groupRoutes); // 👈 Add this with the others
+app.use("/api/groups/group", groupMessageRoutes); // ✅ ADD THIS LINE
 
 // Root API test
 app.get("/api", (req, res) => {

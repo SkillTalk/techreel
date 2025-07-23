@@ -76,3 +76,42 @@
   cursor: pointer;
 }
 
+
+
+.message {
+  margin: 8px;
+  padding: 10px;
+  max-width: 70%;
+  border-radius: 12px;
+  position: relative;
+  background: #007bff;
+  color: white;
+}
+
+.message.you {
+  background: #444;
+  align-self: flex-start;
+}
+
+.message.me {
+  background: #2196f3;
+  align-self: flex-end;
+}
+
+.message-content {
+  white-space: pre-wrap;
+}
+
+.timestamp {
+  font-size: 0.75rem;
+  color: #ccc;
+  margin-top: 4px;
+  text-align: right;
+}
+
+.typing-indicator {
+  font-style: italic;
+  color: #999;
+  padding-left: 10px;
+}
+

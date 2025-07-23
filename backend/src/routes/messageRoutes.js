@@ -4,6 +4,39 @@ const Message = require("../models/Message");
 const User = require("../models/User"); // ✅ Required for inbox route
 
 
+const OpenAI = require("openai");
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+
+
+
+router.post("/style-message", async (req, res) => {
+  const { rawText } = req.body;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "Style user messages with inline HTML (color, bold, italic).",
+        },
+        { role: "user", content: `Style this message: ${rawText}` },
+      ],
+    });
+
+    const styledMessage = completion.choices[0].message.content;
+    res.json({ styledMessage });
+  } catch (err) {
+    console.error("AI Styling Error:", err.message);
+    res.status(500).json({ error: "Failed to style message" });
+  }
+});
+
+
 // Get inbox conversations for a user
 router.get("/inbox/:userId", async (req, res) => {
   const { userId } = req.params;

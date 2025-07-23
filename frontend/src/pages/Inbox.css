@@ -55,3 +55,58 @@
   margin-top: 5px;
 }
 
+
+
+
+
+
+
+
+
+.corner-avatar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #220022, #000000);
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  cursor: pointer;
+  animation: pulseGlow 2s infinite ease-in-out;
+  transition: transform 0.2s;
+}
+
+.corner-avatar:hover {
+  transform: scale(1.08);
+}
+
+.corner-initial {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffffff;
+  animation: rotateLetter 4s linear infinite;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.3);
+}
+
+@keyframes rotateLetter {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 8px #220022, 0 0 12px #000;
+  }
+  50% {
+    box-shadow: 0 0 14px #ff00ff, 0 0 20px #111;
+  }
+  100% {
+    box-shadow: 0 0 8px #220022, 0 0 12px #000;
+  }
+}
+

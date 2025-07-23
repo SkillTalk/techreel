@@ -257,5 +257,30 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+router.post("/:id/upload-image", authenticate, async (req, res) => {
+  try {
+    if (req.user.userId.toString() !== req.params.id) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    const { imageBase64 } = req.body;
+
+    if (!imageBase64 || !imageBase64.startsWith("data:image")) {
+      return res.status(400).json({ message: "Invalid image data" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { profileImage: imageBase64 },
+      { new: true }
+    ).select("-password");
+
+    res.json({ imageUrl: updatedUser.profileImage });
+  } catch (err) {
+    console.error("Image upload error:", err);
+    res.status(500).json({ message: "Upload failed" });
+  }
+});
+
 
 module.exports = router;

@@ -93,3 +93,52 @@ body {
   }
 }
 
+
+.corner-avatar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #0b0b0b, #111111);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  cursor: pointer;
+  animation: pulseGlow 2s infinite ease-in-out;
+  transition: transform 0.2s;
+}
+
+.corner-avatar:hover {
+  transform: scale(1.08);
+}
+
+.corner-initial {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #ffffff;
+  animation: rotateLetter 4s linear infinite;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
+}
+
+@keyframes rotateLetter {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 8px #000000, 0 0 16px #000000;
+  }
+  50% {
+    box-shadow: 0 0 12px #000000, 0 0 24px #000000;
+  }
+  100% {
+    box-shadow: 0 0 8px #000000, 0 0 16px #000000;
+  }
+}
+

@@ -108,4 +108,137 @@
   margin-bottom: 1.5rem;
   font-family: 'Segoe UI', sans-serif;
 }
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1.2rem 0;
+}
+
+
+
+.profile-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #00ffff;
+  margin-bottom: 12px;
+}
+
+
+
+.profile-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+
+
+.profile-avatar-wrapper {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.glow-circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00f0ff, #9d00ff);
+  position: relative;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease-in-out;
+}
+
+.glow-circle:hover {
+  transform: scale(1.1);
+}
+
+.pulse-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 3px solid #00f0ff;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+  box-sizing: border-box;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+.profile-initial {
+  font-size: 36px;
+  font-weight: bold;
+  color: white;
+  z-index: 2;
+}
+
+.corner-avatar {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #0b0b0b, #111111);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  cursor: pointer;
+  animation: pulseGlow 2s infinite ease-in-out;
+  transition: transform 0.2s;
+}
+
+.corner-avatar:hover {
+  transform: scale(1.08);
+}
+
+.corner-initial {
+  font-size: 22px;
+  font-weight: 700;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #ffffff;
+  animation: rotateLetter 4s linear infinite;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
+}
+
+@keyframes rotateLetter {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 8px #000000, 0 0 16px #000000;
+  }
+  50% {
+    box-shadow: 0 0 12px #000000, 0 0 24px #000000;
+  }
+  100% {
+    box-shadow: 0 0 8px #000000, 0 0 16px #000000;
+  }
+}
 

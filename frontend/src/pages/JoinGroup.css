@@ -1,0 +1,138 @@
+/* Base layout */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #0f1220, #1a1c30);
+  color: white;
+}
+
+.join-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.join-title {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 0.3rem;
+}
+
+.join-subtitle {
+  text-align: center;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  color: #aaa;
+}
+
+/* Search bar */
+.group-search {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 2rem auto;
+  padding: 10px 15px;
+  border-radius: 12px;
+  border: none;
+  font-size: 1rem;
+  outline: none;
+}
+
+/* Group section container */
+.group-sections {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  scroll-snap-type: x mandatory;
+}
+
+/* Individual column */
+.group-column {
+  flex: 1 1 45%;
+  max-width: 480px;
+  scroll-snap-align: start;
+}
+
+.group-column h2 {
+  font-size: 1.2rem;
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Group card styling */
+.group-card {
+  background: #1c1f30;
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.group-card:hover {
+  transform: translateY(-2px);
+}
+
+.group-card h3 {
+  margin: 0 0 0.5rem 0;
+}
+
+.group-card p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+}
+
+/* Button styles */
+.group-card button {
+  margin-top: 0.8rem;
+  width: 100%;
+  padding: 10px 0;
+  border: none;
+  background: #00d5ff;
+  color: #000;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.group-card button:hover {
+  background: #00aacc;
+}
+
+.group-card button:disabled {
+  background: #666;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+/* No groups / loading */
+.no-groups,
+.join-loading {
+  text-align: center;
+  font-size: 1rem;
+  color: #bbb;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  .group-column {
+    flex: 1 1 100%;
+    max-width: 100%;
+    padding: 0 1rem;
+  }
+
+  .group-sections {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 1rem;
+  }
+
+  .group-sections::-webkit-scrollbar {
+    display: none;
+  }
+}
+

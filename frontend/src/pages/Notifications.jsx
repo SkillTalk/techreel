@@ -36,6 +36,18 @@ const Notifications = () => {
 
   return (
     <div className="followers-wrapper">
+	  {user && (
+  <div
+    className="corner-avatar"
+    onClick={() => navigate("/profile")}
+    title="Go to your profile"
+  >
+    <span className="corner-initial">
+      {user.user_id?.charAt(0).toUpperCase() || "U"}
+    </span>
+  </div>
+)}
+
       <h2>Notifications</h2>
       {notifications.length === 0 ? (
         <p>No follow requests.</p>

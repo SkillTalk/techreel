@@ -112,17 +112,33 @@ const PublicProfile = () => {
 
   return (
     <div className="profile-wrapper">
-      <div className="top-bar">
+{currentUser && (
+  <div
+    className="corner-avatar"
+    onClick={() => navigate("/profile")}
+    title="Go to your profile"
+  >
+    <span className="corner-initial">
+      {currentUser.user_id?.charAt(0).toUpperCase() || "U"}
+    </span>
+  </div>
+)}
+
+    <div className="top-bar">
         <h2 className="public-name">
           {user.user_id || "Public Profile"}
         </h2>
       </div>
+    
+    <div className="profile-image-container">
+      <img
+        src={user.profileImage || "/assets/signup_page.png"}
+        alt="Profile"
+        className="profile-image"
+      />
+    </div>
 
       <div className="user-section">
-        <div className="user-basic">
-          <p><strong>{user.user_id}</strong></p>
-          <p>{user.email}</p>
-        </div>
 
         <div className="user-stats">
           <button className="stats-button" onClick={() => navigate(`/followers/${user._id}`)}>
@@ -134,11 +150,6 @@ const PublicProfile = () => {
             {user.following?.filter(f => f.status === "accepted").length || 0}
           </button>
         </div>
-      </div>
-
-      <div className="bio-box">
-        <p><strong>Bio:</strong></p>
-        <p>{user.bio || "No bio available."}</p>
       </div>
 
       {currentUser && currentUser._id !== user._id && (
@@ -162,6 +173,11 @@ const PublicProfile = () => {
           )}
         </div>
       )}
+	<div className="bio-box">
+        <p><strong>Bio:</strong></p>
+        <p>{user.bio || "No bio available."}</p>
+      </div>
+
     </div>
   );
 };

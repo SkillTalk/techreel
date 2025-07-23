@@ -40,6 +40,7 @@ const userSchema = new mongoose.Schema({
     unique: false, // ✅ Remove uniqueness
     sparse: true, // ✅ Optional: tells MongoDB to skip `null` values for index
   },
+  profileImage: { type: String, default: "" },
   followers: [
     {
       user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

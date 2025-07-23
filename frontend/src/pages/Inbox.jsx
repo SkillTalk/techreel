@@ -6,38 +6,40 @@ import "./Inbox.css";
 const Inbox = () => {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
 
-  const currentUser = JSON.parse(localStorage.getItem("user"));
-
   useEffect(() => {
-    if (!currentUser?._id) {
-      console.error("❌ currentUser or _id missing in localStorage");
-      setLoading(false);
-      return;
-    }
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      setCurrentUser(user);
 
-    const fetchInbox = async () => {
-      try {
-        const res = await fetch(`${BASE_URL}/messages/inbox/${currentUser._id}`);
-        const data = await res.json();
-        console.log("📥 Inbox API response:", data);
+      const fetchInbox = async () => {
+        try {
+          const res = await fetch(`${BASE_URL}/messages/inbox/${user._id}`);
+          const data = await res.json();
+          console.log("📥 Inbox API response:", data);
 
-        if (res.ok && Array.isArray(data)) {
-          setConversations(data);
-        } else {
+          if (res.ok && Array.isArray(data)) {
+            setConversations(data);
+          } else {
+            setConversations([]);
+          }
+        } catch (err) {
+          console.error("❌ Error fetching inbox:", err);
           setConversations([]);
+        } finally {
+          setLoading(false);
         }
-      } catch (err) {
-        console.error("❌ Error fetching inbox:", err);
-        setConversations([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
 
-    fetchInbox();
-  }, [currentUser?._id]);
+      fetchInbox();
+    } else {
+      setLoading(false);
+      console.error("❌ No user in localStorage");
+    }
+  }, []);
 
   const handleClick = (user) => {
     navigate(`/message/${user._id}`, { state: { selectedUser: user } });
@@ -45,6 +47,18 @@ const Inbox = () => {
 
   return (
     <div className="inbox-wrapper">
+      {currentUser && (
+        <div
+          className="corner-avatar"
+	  onClick={() => navigate("/profile")}
+          title="Go to your profile"
+        >
+          <span className="corner-initial">
+            {currentUser.user_id?.charAt(0).toUpperCase() || "U"}
+          </span>
+        </div>
+      )}
+
       <h2 className="inbox-title">Your Conversations</h2>
 
       {loading ? (
