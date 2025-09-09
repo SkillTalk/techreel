@@ -279,9 +279,42 @@ socket.on("registerUser", (userId) => {
     io.emit("follow-update", data);
   });
 
+  // --- Voice Calling Support ---
+  socket.on("join-voice-room", ({ groupId, userId }) => {
+    socket.join(`voice-${groupId}`);
+    socket.to(`voice-${groupId}`).emit("user-joined", { callerId: userId, signal: null });
+    console.log(`🎤 User ${userId} joined voice room for group ${groupId}`);
+  });
+
+  socket.on("sending-signal", ({ userToSignal, callerId, signal }) => {
+    const targetSocket = users.get(userToSignal);
+    if (targetSocket) {
+      io.to(targetSocket).emit("user-joined", { callerId, signal });
+    }
+  });
+
+  socket.on("returning-signal", ({ signal, callerId }) => {
+    const targetSocket = users.get(callerId);
+    if (targetSocket) {
+      io.to(targetSocket).emit("receiving-returned-signal", { id: socket.id, signal });
+    }
+  });
+
+  socket.on("leave-voice-room", ({ groupId, userId }) => {
+    socket.to(`voice-${groupId}`).emit("user-left", userId);
+    socket.leave(`voice-${groupId}`);
+    console.log(`🎤 User ${userId} left voice room for group ${groupId}`);
+  });
+
   // --- Disconnect ---
   socket.on("disconnect", () => {
     console.log("❌ Socket disconnected:", socket.id);
+    // Clean up voice rooms
+    socket.rooms.forEach(room => {
+      if (room.startsWith('voice-')) {
+        socket.to(room).emit("user-left", users.get(socket.id));
+      }
+    });
   });
 });
 

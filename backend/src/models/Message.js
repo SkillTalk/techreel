@@ -20,9 +20,13 @@ const messageSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // Soft-delete per viewer: if a user's id is in this array,
+    // the message is hidden for that user but remains for the other party
+    deletedFor: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );
 
 module.exports = mongoose.model("Message", messageSchema);
+
 

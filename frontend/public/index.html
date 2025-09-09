@@ -18,6 +18,23 @@
     <link rel="manifest" href="%PUBLIC_URL%/site.webmanifest" />
 
     <title>SkillTalk | More Than Networking—It’s Skill Chemistry</title>
+    
+    <!-- Process polyfill to prevent "Can't find variable: process" error -->
+    <script>
+      if (typeof window !== 'undefined' && !window.process) {
+        window.process = {
+          env: {
+            NODE_ENV: 'development'
+          },
+          nextTick: function(callback) {
+            setTimeout(callback, 0);
+          },
+          emit: function() {},
+          on: function() {},
+          off: function() {}
+        };
+      }
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

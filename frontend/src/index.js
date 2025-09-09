@@ -4,6 +4,27 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+// Process polyfill to prevent "Can't find variable: process" error
+if (typeof window !== 'undefined' && !window.process) {
+  window.process = {
+    env: {
+      NODE_ENV: 'development'
+    },
+    nextTick: function(callback) {
+      setTimeout(callback, 0);
+    },
+    emit: function() {},
+    on: function() {},
+    off: function() {},
+    stdout: {
+      write: function() {}
+    },
+    stderr: {
+      write: function() {}
+    }
+  };
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

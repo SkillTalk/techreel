@@ -39,9 +39,20 @@ router.get("/search", async (req, res) => {
     return res.status(400).json({ message: "Search query is required" });
 
   try {
+    // Search across multiple fields: user_id, skills, profession, bio, location, education
     const users = await User.find({
-      user_id: { $regex: new RegExp(query, "i") },
+      $or: [
+        { user_id: { $regex: new RegExp(query, "i") } },
+        { skills: { $in: [new RegExp(query, "i")] } },
+        { profession: { $regex: new RegExp(query, "i") } },
+        { bio: { $regex: new RegExp(query, "i") } },
+        { location: { $regex: new RegExp(query, "i") } },
+        { education: { $regex: new RegExp(query, "i") } },
+        { interests: { $in: [new RegExp(query, "i")] } }
+      ]
     }).select("-password");
+    
+    console.log(`Search for "${query}" returned ${users.length} users`);
     res.json(users);
   } catch (error) {
     console.error("Error searching users:", error);
@@ -200,23 +211,48 @@ router.post("/:id/follow", async (req, res) => {
   }
 });
 
-// ✅ PUT route to update profile (bio, website)
+// ✅ PUT route to update profile (all fields)
 router.put("/:id", authenticate, async (req, res) => {
   try {
-	  if (req.user.userId.toString() !== req.params.id){
-    //if (req.user._id.toString() !== req.params.id) {
+    if (req.user.userId.toString() !== req.params.id){
       return res.status(403).json({ message: "Unauthorized" });
     }
 
-    const { bio, website } = req.body;
+    const { 
+      bio, 
+      website, 
+      skills, 
+      profession, 
+      experienceYears, 
+      location, 
+      education, 
+      interests 
+    } = req.body;
+
+    // Prepare update object with only provided fields
+    const updateData = {};
+    if (bio !== undefined) updateData.bio = bio;
+    if (website !== undefined) updateData.website = website;
+    if (skills !== undefined) updateData.skills = Array.isArray(skills) ? skills : [];
+    if (profession !== undefined) updateData.profession = profession;
+    if (experienceYears !== undefined) updateData.experienceYears = experienceYears;
+    if (location !== undefined) updateData.location = location;
+    if (education !== undefined) updateData.education = education;
+    if (interests !== undefined) updateData.interests = Array.isArray(interests) ? interests : [];
+
+
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
-      { bio, website },
+      updateData,
       { new: true }
     ).select("-password");
 
-    if (!updatedUser)
+    if (!updatedUser) {
+      console.log("User not found with ID:", req.params.id);
       return res.status(404).json({ message: "User not found" });
+    }
+    
+    console.log("Profile updated successfully:", updatedUser);
     res.json({ message: "Profile updated", user: updatedUser });
   } catch (error) {
     console.error("Error updating profile:", error);
@@ -234,16 +270,16 @@ router.get("/:id", async (req, res) => {
     if (isValidObjectId) {
       user = await User.findById(id)
         .select("-password")
-        .populate("followers.user", "user_id")
-        .populate("following.user", "user_id");
+        .populate("followers.user", "user_id profileImage profession bio skills followers following")
+        .populate("following.user", "user_id profileImage profession bio skills followers following");
     }
 
     // fallback to user_id search only if not found by ObjectId or id is not valid
     if (!user) {
       user = await User.findOne({ user_id: id })
         .select("-password")
-        .populate("followers.user", "user_id")
-        .populate("following.user", "user_id");
+        .populate("followers.user", "user_id profileImage profession bio skills followers following")
+        .populate("following.user", "user_id profileImage profession bio skills followers following");
     }
 
     if (!user) {

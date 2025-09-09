@@ -1,5 +1,5 @@
 // src/pages/PrivateRedirect.jsx
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const PrivateRedirect = () => {
@@ -8,7 +8,7 @@ const PrivateRedirect = () => {
   useEffect(() => {
     const user = localStorage.getItem("user"); // or check token if used
     if (user) {
-      navigate("/profile");
+      navigate("/home");
     } else {
       navigate("/landing");
     }

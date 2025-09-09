@@ -52,11 +52,13 @@ router.get("/inbox/:userId", async (req, res) => {
         msg.senderId.toString() === userId ? msg.receiverId : msg.senderId;
 
       if (!convoMap.has(otherUserId.toString())) {
-        const user = await User.findById(otherUserId).select("_id user_id");
-        convoMap.set(otherUserId.toString(), {
-          user,
-          lastMessage: msg,
-        });
+        const user = await User.findById(otherUserId).select("_id user_id profileImage profession bio skills");
+        if (user) {
+          convoMap.set(otherUserId.toString(), {
+            user,
+            lastMessage: msg,
+          });
+        }
       }
     }
 
@@ -65,6 +67,37 @@ router.get("/inbox/:userId", async (req, res) => {
   } catch (err) {
     console.error("Inbox fetch error:", err);
     res.status(500).json({ error: "Inbox fetch failed" });
+  }
+});
+
+// Unread count for a user
+router.get("/unread-count/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const count = await Message.countDocuments({
+      receiverId: userId,
+      seen: false,
+      deletedFor: { $ne: userId },
+    });
+    res.json({ count });
+  } catch (err) {
+    console.error("Unread count error:", err);
+    res.status(500).json({ error: "Failed to fetch unread count" });
+  }
+});
+
+// Mark all messages to this user as seen
+router.post("/mark-seen/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const result = await Message.updateMany(
+      { receiverId: userId, seen: false },
+      { $set: { seen: true } }
+    );
+    res.json({ modifiedCount: result.modifiedCount || 0 });
+  } catch (err) {
+    console.error("Mark seen error:", err);
+    res.status(500).json({ error: "Failed to mark messages as seen" });
   }
 });
 
@@ -90,11 +123,36 @@ router.get("/inbox/:userId", async (req, res) => {
           { senderId: userId1, receiverId: userId2 },
           { senderId: userId2, receiverId: userId1 },
         ],
-      }).sort("createdAt");
+      })
+        .find({ deletedFor: { $ne: userId1 } })
+        .sort("createdAt");
   
       res.status(200).json(messages);
     } catch (err) {
       res.status(500).json({ error: err.message });
+    }
+  });
+  
+  // Soft-delete a conversation for one user (hide messages for userId1 only)
+  router.delete("/conversation/:userId1/:userId2", async (req, res) => {
+    try {
+      const { userId1, userId2 } = req.params;
+      const userA = userId1;
+      const userB = userId2;
+      const result = await Message.updateMany(
+        {
+          $or: [
+            { senderId: userA, receiverId: userB },
+            { senderId: userB, receiverId: userA },
+          ],
+          deletedFor: { $ne: userA },
+        },
+        { $addToSet: { deletedFor: userA } }
+      );
+      return res.json({ modifiedCount: result.modifiedCount || 0 });
+    } catch (err) {
+      console.error("Soft-delete conversation error:", err);
+      return res.status(500).json({ error: "Failed to delete conversation" });
     }
   });
   

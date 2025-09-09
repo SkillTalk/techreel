@@ -24,7 +24,7 @@
  *    Acts as the entry point for initializing the Express app.
  *    This file is imported and run by `server.js`.
 */
-
+// backend/src/app.js
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
@@ -35,35 +35,61 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const groupRoutes = require("./routes/groupRoutes");
-const groupMessageRoutes = require("./routes/groupMessageRoutes"); // ✅ ADD THIS
+const groupMessageRoutes = require("./routes/groupMessageRoutes");
+const postRoutes = require("./routes/postRoutes");
 
 const app = express();
 
-// Middlewares
-app.use(cors());
+/* ---------- Middlewares ---------- */
+app.use(cors()); // dev: allow all (tweak for prod if needed)
 app.use(bodyParser.json({ limit: "100mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "100mb", parameterLimit: 100000 }));
 
-
-app.use("/api/messages", messageRoutes);
-
-// API Routes (always place before static)
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/messages", messageRoutes);
-app.use("/api/groups", groupRoutes); // 👈 Add this with the others
-app.use("/api/groups/group", groupMessageRoutes); // ✅ ADD THIS LINE
-
-// Root API test
-app.get("/api", (req, res) => {
-  res.send("TechReel backend is running!");
+// tiny request logger
+app.use((req, _res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
 });
 
-// ✅ Serve frontend after API routes
+/* ---------- API Routes (support BOTH prefixes) ---------- */
+// Auth
+app.use("/auth", authRoutes);
+app.use("/api/auth", authRoutes);
+
+// Users
+app.use("/users", userRoutes);
+app.use("/api/users", userRoutes);
+
+// Messages
+app.use("/messages", messageRoutes);
+app.use("/api/messages", messageRoutes);
+
+// Groups
+app.use("/groups", groupRoutes);
+app.use("/api/groups", groupRoutes);
+
+// Group messages (thread route)
+app.use("/groups/group", groupMessageRoutes);
+app.use("/api/groups/group", groupMessageRoutes);
+
+// Posts
+app.use("/posts", postRoutes);
+app.use("/api/posts", postRoutes);
+
+// Healthcheck
+app.get("/api/health", (_req, res) => res.json({ ok: true }));
+
+/* ---------- Static (built frontend) ---------- */
 const frontendPath = path.join(__dirname, "../frontend_build");
 app.use(express.static(frontendPath));
-app.get("*", (req, res) => {
+app.get("*", (_req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
+});
+
+/* ---------- Error handler ---------- */
+app.use((err, _req, res, _next) => {
+  console.error("💥 Unhandled error:", err);
+  res.status(err.status || 500).json({ error: err.message || "Internal Server Error" });
 });
 
 module.exports = app;
