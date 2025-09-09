@@ -37,6 +37,7 @@ const messageRoutes = require("./routes/messageRoutes");
 const groupRoutes = require("./routes/groupRoutes");
 const groupMessageRoutes = require("./routes/groupMessageRoutes");
 const postRoutes = require("./routes/postRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 
 const app = express();
 
@@ -75,6 +76,10 @@ app.use("/api/groups/group", groupMessageRoutes);
 // Posts
 app.use("/posts", postRoutes);
 app.use("/api/posts", postRoutes);
+
+// AI
+app.use("/ai", aiRoutes);
+app.use("/api/ai", aiRoutes);
 
 // Healthcheck
 app.get("/api/health", (_req, res) => res.json({ ok: true }));

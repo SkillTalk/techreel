@@ -299,6 +299,23 @@ body {
   margin: 0;
 }
 
+/* Structured Bio (reuse styles from Profile) */
+.bio-structured { display: flex; flex-direction: column; gap: 10px; }
+.bio-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 10px;
+  align-items: start;
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.bio-key { font-size: 12px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: .4px; }
+.bio-value { font-size: 14px; color: #374151; }
+.bio-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.bio-chips .chip { background: #eef2ff; border: 1px solid #e5e7eb; color: #1f2937; padding: 6px 10px; border-radius: 9999px; font-size: 12px; font-weight: 700; }
+
 .public-user-details {
   display: flex;
   flex-direction: column;

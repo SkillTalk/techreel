@@ -219,7 +219,12 @@ router.put("/:id", authenticate, async (req, res) => {
     }
 
     const { 
-      bio, 
+      bio,
+      bioHeadline,
+      bioSummary,
+      bioCoreSkills,
+      bioMotivation,
+      bioCurrentFocus,
       website, 
       skills, 
       profession, 
@@ -233,6 +238,11 @@ router.put("/:id", authenticate, async (req, res) => {
     const updateData = {};
     if (bio !== undefined) updateData.bio = bio;
     if (website !== undefined) updateData.website = website;
+    if (bioHeadline !== undefined) updateData.bioHeadline = bioHeadline;
+    if (bioSummary !== undefined) updateData.bioSummary = bioSummary;
+    if (bioCoreSkills !== undefined) updateData.bioCoreSkills = Array.isArray(bioCoreSkills) ? bioCoreSkills : [];
+    if (bioMotivation !== undefined) updateData.bioMotivation = bioMotivation;
+    if (bioCurrentFocus !== undefined) updateData.bioCurrentFocus = bioCurrentFocus;
     if (skills !== undefined) updateData.skills = Array.isArray(skills) ? skills : [];
     if (profession !== undefined) updateData.profession = profession;
     if (experienceYears !== undefined) updateData.experienceYears = experienceYears;

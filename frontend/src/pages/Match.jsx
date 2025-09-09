@@ -7,26 +7,32 @@ const Match = () => {
 
   return (
     <div className="match-page">
+      <div className="bg-orbs" aria-hidden>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
       <div className="match-header">
         <button className="back-btn" onClick={() => navigate("/profile")} aria-label="Back to profile">←</button>
         <div className="headings">
-          <h1 className="title">Connect & Learn</h1>
-          <p className="subtitle">Join SkillTalk groups to collaborate in real‑time with peers.</p>
+          <h1 className="title">Skill Rooms</h1>
+          <p className="subtitle">Join rooms to collaborate live with peers and mentors.</p>
         </div>
       </div>
 
       <div className="match-hero">
         <div className="hero-visual">
-          <span className="bubble">🎥</span>
-          <span className="bubble">🎙️</span>
-          <span className="bubble">🖥️</span>
+          <span className="bubble bubble-1">🎥</span>
+          <span className="bubble bubble-2">🎙️</span>
+          <span className="bubble bubble-3">🖥️</span>
         </div>
         <div className="hero-actions">
-          <button className="btn primary" onClick={() => navigate("/match/join")}>
-            🔍 Join Groups
+          <button className="btn btn-cta shimmer" onClick={() => navigate("/match/join")}>
+            Join Rooms
           </button>
-          <button className="btn secondary" onClick={() => navigate("/match/create")}>
-            ➕ Create Group
+          <button className="btn btn-ghost glow" onClick={() => navigate("/match/create")}>
+            Create Room
           </button>
         </div>
         <div className="topic-chips" role="list">

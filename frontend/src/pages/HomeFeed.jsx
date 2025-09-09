@@ -5,10 +5,7 @@ import "./HomeFeed.css";
 
 const HomeFeed = () => {
   const [posts, setPosts] = useState([]);
-  const [cursor, setCursor] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const sentinelRef = useRef(null);
   const navigate = useNavigate();
   const [composerFor, setComposerFor] = useState(null);
   const [composerText, setComposerText] = useState("");
@@ -17,61 +14,112 @@ const HomeFeed = () => {
   const [following, setFollowing] = useState([]);
 
   const currentUser = JSON.parse(localStorage.getItem("user"));
+  const [loadingSnippet, setLoadingSnippet] = useState("// fetching awesome content…");
+  const [typedSnippet, setTypedSnippet] = useState("");
+  const [sanitizedSnippet, setSanitizedSnippet] = useState("");
+  const typingTimerRef = useRef(null);
 
   // (Reverted) Lazy media
 
-  // Load posts by following list (reference approach similar to PublicProfile.jsx)
-  const loadFollowingPosts = async () => {
+  // Load mixed feed (following prioritized, topped up with others)
+  const loadFeed = async () => {
     if (!currentUser?._id || loading) return;
     setLoading(true);
+    // fire-and-forget: fetch a random code snippet from backend
+    fetchSnippet().catch(() => {});
     try {
-      // 1) Get full user to read following
-      const resUser = await fetch(`${BASE_URL}/users/${currentUser._id}`);
-      const dataUser = await resUser.json();
-      const followArr = Array.isArray(dataUser?.user?.following) ? dataUser.user.following : [];
-      const followingIds = followArr
-        .map((f) => (f?.user?._id ? f.user._id : f?.user))
-        .filter(Boolean)
-        .filter((id) => String(id) !== String(currentUser._id));
+      // Fetch following-priority feed and global feed in parallel, then merge
+      const [feedRes, globalRes] = await Promise.all([
+        fetch(`${BASE_URL}/posts/feed?userId=${currentUser._id}&limit=20`),
+        fetch(`${BASE_URL}/posts/global?exclude=${currentUser._id}&limit=40`),
+      ]);
+      const feedData = await feedRes.json();
+      const globalData = await globalRes.json();
+      const feedItems = Array.isArray(feedData?.posts) ? feedData.posts : [];
+      const globalItems = Array.isArray(globalData?.posts) ? globalData.posts : [];
 
-      if (followingIds.length === 0) {
-        setPosts([]);
-        setHasMore(false);
-        return;
-      }
-
-      // 2) Fetch posts for each following user in parallel
-      const results = await Promise.all(
-        followingIds.map((uid) => fetch(`${BASE_URL}/posts/user/${uid}`).then((r) => r.json()).catch(() => []))
-      );
-      // 3) Flatten, dedupe, sort by createdAt desc
-      const flat = [];
+      // Dedupe and interleave with 2:1 bias to following
       const seen = new Set();
-      for (const arr of results) {
-        if (Array.isArray(arr)) {
-          for (const p of arr) {
-            const id = String(p?._id || "");
-            if (id && !seen.has(id)) {
-              seen.add(id);
-              flat.push(p);
-            }
-          }
+      const pri = [];
+      for (const p of feedItems) { const id = String(p?._id||""); if (id && !seen.has(id)) { seen.add(id); pri.push(p);} }
+      const secPool = [];
+      for (const p of globalItems) {
+        const id = String(p?._id || "");
+        const ownerId = String(p?.userId?._id || p?.userId || "");
+        if (id && !seen.has(id) && ownerId !== String(currentUser._id)) {
+          seen.add(id);
+          secPool.push(p);
         }
       }
-      flat.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-      setPosts(flat);
-      setHasMore(false);
-      setCursor(null);
+      // light shuffle on secondary
+      for (let i = secPool.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [secPool[i], secPool[j]]=[secPool[j], secPool[i]]; }
+      const merged = [];
+      let i = 0, j = 0;
+      while ((i < pri.length || j < secPool.length) && merged.length < 20) {
+        const preferPri = Math.random() < 0.66;
+        if (preferPri && i < pri.length) merged.push(pri[i++]);
+        else if (j < secPool.length) merged.push(secPool[j++]);
+        else if (i < pri.length) merged.push(pri[i++]);
+        else break;
+      }
+      let items = merged.length ? merged : [...pri, ...secPool].slice(0,20);
+      if (!items.length) {
+        try {
+          const allRes = await fetch(`${BASE_URL}/posts/global?limit=20`);
+          const allData = await allRes.json();
+          const all = Array.isArray(allData?.posts) ? allData.posts : [];
+          if (all.length) items = all.filter(p => String(p?.userId?._id || p?.userId || "") !== String(currentUser._id));
+        } catch {}
+      }
+      // normalize counts for UI
+      const normalized = items.map((p) => ({
+        ...p,
+        likesCount: Array.isArray(p.likes) ? p.likes.length : (p.likesCount || 0),
+        commentsCount: Array.isArray(p.comments) ? p.comments.length : (p.commentsCount || 0),
+      }));
+      setPosts(normalized);
     } catch (e) {
       setPosts([]);
-      setHasMore(false);
     } finally {
       setLoading(false);
     }
   };
 
+  async function fetchSnippet() {
+    try {
+      const res = await fetch(`${BASE_URL}/ai/snippet`);
+      const data = await res.json();
+      if (data?.snippet) setLoadingSnippet(data.snippet);
+    } catch {}
+  }
+
+  // Sanitize AI fenced code and type it character-by-character
   useEffect(() => {
-    loadFollowingPosts();
+    if (!loading) return;
+    const clean = (loadingSnippet || "").replace(/```[a-zA-Z]*\n?/g, "").replace(/```/g, "");
+    setSanitizedSnippet(clean);
+    setTypedSnippet("");
+    if (typingTimerRef.current) {
+      clearTimeout(typingTimerRef.current);
+      typingTimerRef.current = null;
+    }
+    let i = 0;
+    const run = () => {
+      setTypedSnippet((prev) => prev + (clean[i] || ""));
+      i += 1;
+      if (i < clean.length && loading) {
+        const delay = 10 + Math.floor(Math.random() * 25); // 10-35ms per char
+        typingTimerRef.current = setTimeout(run, delay);
+      }
+    };
+    if (clean.length) typingTimerRef.current = setTimeout(run, 50);
+    return () => {
+      if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+    };
+  }, [loadingSnippet, loading]);
+
+  useEffect(() => {
+    loadFeed();
     // preload following list for share popup
     const preloadFollowing = async () => {
       try {
@@ -86,8 +134,7 @@ const HomeFeed = () => {
       } catch {}
     };
     preloadFollowing();
-    // disable infinite scroll for following feed only
-    setHasMore(false);
+    // no infinite scroll for now
     return () => {};
     // eslint-disable-next-line
   }, []);
@@ -194,8 +241,15 @@ const HomeFeed = () => {
         </div>
       ))}
 
-      <div ref={sentinelRef} className="feed-sentinel">
-        {loading ? "Loading..." : hasMore ? "" : "You’re all caught up"}
+      <div className="feed-sentinel">
+        {loading ? (
+          <div className="feed-loader">
+            <div className="loader-title">Loading Feed…</div>
+            <pre className="code-block">{typedSnippet}{typedSnippet.length < sanitizedSnippet.length ? <span className="caret"></span> : null}</pre>
+          </div>
+        ) : (
+          "You’re all caught up"
+        )}
       </div>
 
       {shareOpen && (

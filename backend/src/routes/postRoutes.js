@@ -90,7 +90,7 @@ router.post("/:postId/comment", async (req, res) => {
   }
 });
 
-// Feed: posts from people I follow + my own (safe / robust)
+// Feed: Prioritize following users' posts, then top-up with others in random-ish order
 router.get("/feed", async (req, res) => {
   try {
     const mongoose = require("mongoose");
@@ -132,28 +132,103 @@ router.get("/feed", async (req, res) => {
       followingIds = users.map((doc) => doc._id);
     }
 
-    // Only show FOLLOWING users' posts (exclude self)
-    if (!followingIds.length) return res.json({ posts: [], nextCursor: null });
-
-    const q = { userId: { $in: followingIds } };
-    if (cursor && mongoose.Types.ObjectId.isValid(cursor)) q._id = { $lt: mongoose.Types.ObjectId(cursor) };
-
     const pageSize = Math.min(parseInt(limit, 10) || 20, 50);
+    const followingQuota = Math.max(1, Math.ceil(pageSize * 0.6));
 
-    let items = await Post.find(q)
+    // 1) Latest posts from following users (priority)
+    const qFollowing = { userId: { $in: followingIds } };
+    if (cursor && mongoose.Types.ObjectId.isValid(cursor)) qFollowing._id = { $lt: mongoose.Types.ObjectId(cursor) };
+
+    let followingItems = [];
+    if (followingIds.length) {
+      followingItems = await Post.find(qFollowing)
+        .sort({ _id: -1 })
+        .limit(followingQuota)
+        .populate("userId", "user_id profileImage")
+        .populate("comments.userId", "user_id profileImage")
+        .lean();
+    }
+
+    // 2) Top-up with posts from non-following users (exclude self and already included)
+    const othersNeeded = Math.max(0, pageSize - followingItems.length);
+    let otherItems = [];
+    if (othersNeeded > 0) {
+      const excludeObjectIds = [
+        mongoose.Types.ObjectId(userId),
+        ...followingIds.map((id) => mongoose.Types.ObjectId(String(id)))
+      ];
+      const qOthers = { userId: { $nin: excludeObjectIds } };
+      // Fetch a slightly larger pool and shuffle to emulate randomness
+      const poolSize = Math.min(othersNeeded * 3, 90);
+      const pool = await Post.find(qOthers)
+        .sort({ _id: -1 })
+        .limit(poolSize)
+        .populate("userId", "user_id profileImage")
+        .populate("comments.userId", "user_id profileImage")
+        .lean();
+      // Shuffle pool
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      otherItems = pool.slice(0, othersNeeded);
+    }
+
+    // 3) Merge with priority for following posts, but interleave to feel fresh
+    const result = [];
+    let i = 0, j = 0;
+    while (i < followingItems.length || j < otherItems.length) {
+      const preferFollowing = Math.random() < 0.66; // 2:1 bias towards following
+      if (preferFollowing && i < followingItems.length) {
+        result.push(followingItems[i++]);
+      } else if (j < otherItems.length) {
+        result.push(otherItems[j++]);
+      } else if (i < followingItems.length) {
+        result.push(followingItems[i++]);
+      } else {
+        break;
+      }
+    }
+
+    // 4) Fallback: if empty (e.g., brand new system), show latest global posts
+    let finalResult = result;
+    if (finalResult.length === 0) {
+      finalResult = await Post.find({})
+        .sort({ _id: -1 })
+        .limit(pageSize)
+        .populate("userId", "user_id profileImage")
+        .populate("comments.userId", "user_id profileImage")
+        .lean();
+    }
+
+    const nextCursor = null; // simple single-page feed for now
+    return res.json({ posts: finalResult, nextCursor });
+  } catch (err) {
+    console.error("Feed error:", err);
+    return res.status(200).json({ posts: [], nextCursor: null });
+  }
+});
+
+// Simple global feed (latest posts), optional exclude userId
+router.get("/global", async (req, res) => {
+  try {
+    const mongoose = require("mongoose");
+    const { exclude, limit = 20 } = req.query;
+    const pageSize = Math.min(parseInt(limit, 10) || 20, 50);
+    const q = {};
+    if (exclude && mongoose.Types.ObjectId.isValid(exclude)) {
+      q.userId = { $ne: mongoose.Types.ObjectId(exclude) };
+    }
+    const items = await Post.find(q)
       .sort({ _id: -1 })
       .limit(pageSize)
       .populate("userId", "user_id profileImage")
       .populate("comments.userId", "user_id profileImage")
       .lean();
-
-    // Only following posts; no global top-up by request
-
-    const nextCursor = items.length === pageSize ? items[items.length - 1]._id : null;
-    return res.json({ posts: items, nextCursor });
+    res.json({ posts: items, nextCursor: null });
   } catch (err) {
-    console.error("Feed error:", err);
-    return res.status(200).json({ posts: [], nextCursor: null });
+    console.error("Global feed error:", err);
+    res.status(200).json({ posts: [], nextCursor: null });
   }
 });
 

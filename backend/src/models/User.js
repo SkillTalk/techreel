@@ -48,6 +48,12 @@ const userSchema = new mongoose.Schema(
     skills: { type: [String], default: [] },
 
     bio: { type: String, trim: true },
+    // Structured Bio fields
+    bioHeadline: { type: String, trim: true },
+    bioSummary: { type: String, trim: true },
+    bioCoreSkills: { type: [String], default: [] },
+    bioMotivation: { type: String, trim: true },
+    bioCurrentFocus: { type: String, trim: true },
     website: { type: String, trim: true },
     profileImage: { type: String, default: "" },
     profession: { type: String, trim: true },

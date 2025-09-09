@@ -485,6 +485,49 @@ body {
   margin: 0;
 }
 
+/* Structured Bio */
+.bio-structured {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.bio-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 10px;
+  align-items: start;
+  background: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.bio-key {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+.bio-value {
+  font-size: 14px;
+  color: #374151;
+}
+
+.bio-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.bio-chips .chip {
+  background: #eef2ff;
+  border: 1px solid #e5e7eb;
+  color: #1f2937;
+  padding: 6px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .user-details {
   display: flex;
   flex-direction: column;
@@ -599,11 +642,67 @@ body {
 
 /* Variant: Match */
 .qa-btn.match {
+  background: transparent;
+  color: #fff;
+  perspective: 800px;
+}
+.qa-btn.match.btn-3d {
+  position: relative;
+  padding: 0;
+  width: 100%;
+  height: 52px;
+  border-radius: 16px;
+  transform-style: preserve-3d;
+}
+
+.btn-3d__front,
+.btn-3d__edge,
+.btn-3d__shadow {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+}
+
+.btn-3d__front {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  letter-spacing: 0.4px;
   background: linear-gradient(135deg, #ff9776 0%, #ff6b6b 100%);
   color: #fff;
-  box-shadow: 0 10px 20px rgba(255, 107, 107, 0.25);
+  transform: translateZ(14px);
+  box-shadow: 0 8px 18px rgba(255, 107, 107, 0.35);
 }
-.qa-btn.match:hover { filter: brightness(1.03); }
+
+.btn-3d__edge {
+  background: linear-gradient(180deg, #e25d5d, #b54b4b);
+  transform: translateZ(8px) scale(0.98);
+  filter: brightness(0.95);
+}
+
+.btn-3d__shadow {
+  background: radial-gradient(80% 80% at 50% 30%, rgba(0,0,0,0.18), rgba(0,0,0,0) 60%);
+  transform: translateZ(0px) translateY(8px) scale(0.98);
+  filter: blur(4px);
+}
+
+.qa-btn.match.btn-3d:hover .btn-3d__front {
+  transform: translateZ(18px) translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.qa-btn.match.btn-3d:hover .btn-3d__edge {
+  transform: translateZ(10px) scale(0.985);
+}
+
+.qa-btn.match.btn-3d:active .btn-3d__front {
+  transform: translateZ(10px);
+}
+
+.qa-btn.match.btn-3d:active .btn-3d__edge {
+  transform: translateZ(6px) scale(0.975);
+}
 
 /* Posts & Reels Section */
 .posts-section {

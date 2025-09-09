@@ -208,6 +208,44 @@ const PublicProfile = () => {
               <p className="public-bio-text">{user.bio || "No bio available. This user hasn't shared anything about themselves yet."}</p>
             </div>
             
+            {/* Structured Bio (public view) */}
+            <div className="bio-structured" role="region" aria-label="Profile summary">
+              {user.bioHeadline ? (
+                <div className="bio-row">
+                  <span className="bio-key">Headline</span>
+                  <span className="bio-value">{user.bioHeadline}</span>
+                </div>
+              ) : null}
+              {user.bioSummary ? (
+                <div className="bio-row">
+                  <span className="bio-key">Summary</span>
+                  <span className="bio-value">{user.bioSummary}</span>
+                </div>
+              ) : null}
+              {Array.isArray(user.bioCoreSkills) && user.bioCoreSkills.length > 0 ? (
+                <div className="bio-row">
+                  <span className="bio-key">Core Skills</span>
+                  <span className="bio-chips">
+                    {user.bioCoreSkills.map((s, i) => (
+                      <span key={`${s}-${i}`} className="chip">{s}</span>
+                    ))}
+                  </span>
+                </div>
+              ) : null}
+              {user.bioMotivation ? (
+                <div className="bio-row">
+                  <span className="bio-key">Motivation</span>
+                  <span className="bio-value">{user.bioMotivation}</span>
+                </div>
+              ) : null}
+              {user.bioCurrentFocus ? (
+                <div className="bio-row">
+                  <span className="bio-key">Current Focus</span>
+                  <span className="bio-value">{user.bioCurrentFocus}</span>
+                </div>
+              ) : null}
+            </div>
+
             {/* User Details */}
             <div className="public-user-details">
               {user.location && (

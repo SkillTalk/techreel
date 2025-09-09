@@ -8,6 +8,11 @@ const EditProfile = () => {
   const [user, setUser] = useState(null);
   const [editForm, setEditForm] = useState({
     bio: "",
+    bioHeadline: "",
+    bioSummary: "",
+    bioCoreSkills: [],
+    bioMotivation: "",
+    bioCurrentFocus: "",
     skills: [],
     profession: "",
     experienceYears: "",
@@ -32,6 +37,11 @@ const EditProfile = () => {
         setUser(res.data.user);
         setEditForm({
           bio: res.data.user.bio || "",
+          bioHeadline: res.data.user.bioHeadline || "",
+          bioSummary: res.data.user.bioSummary || "",
+          bioCoreSkills: res.data.user.bioCoreSkills || [],
+          bioMotivation: res.data.user.bioMotivation || "",
+          bioCurrentFocus: res.data.user.bioCurrentFocus || "",
           skills: res.data.user.skills || [],
           profession: res.data.user.profession || "",
           experienceYears: res.data.user.experienceYears || "",
@@ -60,6 +70,18 @@ const EditProfile = () => {
       }));
       setNewSkill("");
     }
+  };
+
+  // Structured bio chip handlers
+  const [newBioSkill, setNewBioSkill] = useState("");
+  const addBioSkill = () => {
+    if (newBioSkill.trim() && !editForm.bioCoreSkills.includes(newBioSkill.trim())) {
+      setEditForm(prev => ({ ...prev, bioCoreSkills: [...prev.bioCoreSkills, newBioSkill.trim()] }));
+      setNewBioSkill("");
+    }
+  };
+  const removeBioSkill = (s) => {
+    setEditForm(prev => ({ ...prev, bioCoreSkills: prev.bioCoreSkills.filter(x => x !== s) }));
   };
 
   const removeSkill = (skillToRemove) => {
@@ -101,7 +123,7 @@ const EditProfile = () => {
 
       // For now, we'll use a mock response since we don't have ChatGPT API integrated
       // In a real implementation, you would call the ChatGPT API here
-      const mockBio = `Experienced ${editForm.profession || 'professional'} with ${editForm.experienceYears || 'several'} years of expertise in ${editForm.skills.slice(0, 3).join(', ') || 'various technologies'}. Passionate about continuous learning and sharing knowledge with the community.`;
+      const mockBio = `Experienced ${editForm.profession || 'professional'} with ${editForm.experienceYears || 'several'} years of expertise in ${[...editForm.skills, ...editForm.bioCoreSkills].slice(0, 3).join(', ') || 'various technologies'}. Passionate about continuous learning and sharing knowledge with the community.`;
       
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -207,6 +229,71 @@ const EditProfile = () => {
                 {isGeneratingBio ? "Generating..." : "🤖 Generate with AI"}
               </button>
             </div>
+          </div>
+
+          {/* Structured Bio Fields */}
+          <div className="form-group">
+            <label className="form-label">Bio Headline</label>
+            <input
+              type="text"
+              className="form-input"
+              value={editForm.bioHeadline}
+              onChange={(e) => handleInputChange('bioHeadline', e.target.value)}
+              placeholder="e.g., Full‑Stack Developer — real‑time apps, clean UX"
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Professional Summary</label>
+            <textarea
+              className="form-textarea"
+              rows={3}
+              value={editForm.bioSummary}
+              onChange={(e) => handleInputChange('bioSummary', e.target.value)}
+              placeholder="1–2 sentences about your experience, domains, and approach"
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Core Skills (for Bio)</label>
+            <div className="tags-input-group">
+              <div className="tags-container">
+                {editForm.bioCoreSkills.map((skill, index) => (
+                  <span key={index} className="tag">
+                    {skill}
+                    <button className="tag-remove" onClick={() => removeBioSkill(skill)}>×</button>
+                  </span>
+                ))}
+              </div>
+              <div className="tag-input">
+                <input
+                  type="text"
+                  value={newBioSkill}
+                  onChange={(e) => setNewBioSkill(e.target.value)}
+                  placeholder="Add a core skill..."
+                  onKeyPress={(e) => e.key === 'Enter' && addBioSkill()}
+                />
+                <button className="add-tag-btn" onClick={addBioSkill}>+</button>
+              </div>
+            </div>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Motivation</label>
+            <input
+              type="text"
+              className="form-input"
+              value={editForm.bioMotivation}
+              onChange={(e) => handleInputChange('bioMotivation', e.target.value)}
+              placeholder="What drives you? (optional)"
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Current Focus</label>
+            <input
+              type="text"
+              className="form-input"
+              value={editForm.bioCurrentFocus}
+              onChange={(e) => handleInputChange('bioCurrentFocus', e.target.value)}
+              placeholder="What are you working on or open to? (optional)"
+            />
           </div>
 
           {/* Skills Section */}

@@ -411,10 +411,7 @@ const Profile = () => {
     <div className="profile-container">
       {/* Header */}
       <div className="profile-header">
-        <div className="header-left">
-          <h1 className="app-title">SkillTalk</h1>
-          <p className="app-subtitle">Connect • Learn • Grow</p>
-        </div>
+        <div className="header-left"></div>
         <div className="header-right">
           <div className="notification-badge">
             <button 
@@ -512,6 +509,44 @@ const Profile = () => {
               <p className="bio-text">{user.bio || "No bio added yet. Share something about yourself!"}</p>
             </div>
             
+            {/* Structured Bio (enhanced) */}
+            <div className="bio-structured" role="region" aria-label="Profile summary">
+              {user.bioHeadline ? (
+                <div className="bio-row">
+                  <span className="bio-key">Headline</span>
+                  <span className="bio-value">{user.bioHeadline}</span>
+                </div>
+              ) : null}
+              {user.bioSummary ? (
+                <div className="bio-row">
+                  <span className="bio-key">Summary</span>
+                  <span className="bio-value">{user.bioSummary}</span>
+                </div>
+              ) : null}
+              {Array.isArray(user.bioCoreSkills) && user.bioCoreSkills.length > 0 ? (
+                <div className="bio-row">
+                  <span className="bio-key">Core Skills</span>
+                  <span className="bio-chips">
+                    {user.bioCoreSkills.map((s, i) => (
+                      <span key={`${s}-${i}`} className="chip">{s}</span>
+                    ))}
+                  </span>
+                </div>
+              ) : null}
+              {user.bioMotivation ? (
+                <div className="bio-row">
+                  <span className="bio-key">Motivation</span>
+                  <span className="bio-value">{user.bioMotivation}</span>
+                </div>
+              ) : null}
+              {user.bioCurrentFocus ? (
+                <div className="bio-row">
+                  <span className="bio-key">Current Focus</span>
+                  <span className="bio-value">{user.bioCurrentFocus}</span>
+                </div>
+              ) : null}
+            </div>
+
             {/* Key Information */}
             <div className="user-details">
               {user.skills && user.skills.length > 0 && (
@@ -549,41 +584,13 @@ const Profile = () => {
       {/* Quick Action Pills */}
       <div className="quick-actions" role="group" aria-label="Profile quick actions">
         <button 
-          className="qa-btn discover" 
-          onClick={() => navigate("/search-user")}
-          aria-label="Discover people"
-        >
-          <span className="qa-icon" aria-hidden>🔎</span>
-          <span className="qa-label">Discover</span>
-        </button>
-        <div style={{ position: 'relative' }}>
-          <button 
-            className="qa-btn messages" 
-            onClick={async () => {
-              try {
-                if (user?._id) {
-                  await axios.post(`${BASE_URL}/messages/mark-seen/${user._id}`);
-                }
-              } catch {}
-              setUnreadCount(0);
-              navigate("/inbox");
-            }}
-            aria-label="Open messages"
-          >
-            <span className="qa-icon" aria-hidden>💬</span>
-            <span className="qa-label">Messages</span>
-          </button>
-          {unreadCount > 0 && (
-            <span className={`msg-unread ${hasNewMessagePulse ? 'pulse' : ''}`}></span>
-          )}
-        </div>
-        <button 
-          className="qa-btn match" 
+          className="qa-btn match btn-3d" 
           onClick={() => navigate("/match")}
-          aria-label="Find a match"
+          aria-label="Open SkillRoom"
         >
-          <span className="qa-icon" aria-hidden>✨</span>
-          <span className="qa-label">Match</span>
+          <span className="btn-3d__shadow" aria-hidden></span>
+          <span className="btn-3d__edge" aria-hidden></span>
+          <span className="btn-3d__front">SkillRoom</span>
         </button>
       </div>
 
