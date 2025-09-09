@@ -106,7 +106,10 @@ router.post("/mark-seen/:userId", async (req, res) => {
   // Save message
   router.post("/", async (req, res) => {
     try {
-      const message = new Message(req.body);
+      const { senderId, receiverId, text, mediaUrl, mediaType, fileName, fileSize } = req.body;
+      if (!senderId || !receiverId) return res.status(400).json({ error: "senderId and receiverId required" });
+      if (!text && !mediaUrl) return res.status(400).json({ error: "Either text or mediaUrl is required" });
+      const message = new Message({ senderId, receiverId, text, mediaUrl, mediaType, fileName, fileSize });
       const saved = await message.save();
       res.status(201).json(saved);
     } catch (err) {

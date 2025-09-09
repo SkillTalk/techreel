@@ -14,8 +14,12 @@ const messageSchema = new mongoose.Schema(
     },
     text: {
       type: String,
-      required: true,
+      required: false,
     },
+    mediaUrl: { type: String }, // base64 data URL or remote URL
+    mediaType: { type: String }, // image|video|file
+    fileName: { type: String },
+    fileSize: { type: Number },
     seen: {
       type: Boolean,
       default: false,

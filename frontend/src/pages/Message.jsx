@@ -335,7 +335,19 @@ const Message = () => {
             messages.map((m, i) => (
               <div key={m._id || m.tempId || `${m.senderId}_${m.timestamp}_${m.text}`} className={`message-wrapper ${m.senderId === currentUserId ? "sent" : "received"}`}>
                 <div className="message-bubble">
-                  <div className="message-content">{m.text}</div>
+                  {m.mediaUrl ? (
+                    m.mediaType === 'image' ? (
+                      <img src={m.mediaUrl} alt={m.fileName || 'attachment'} className="msg-media" />
+                    ) : m.mediaType === 'video' ? (
+                      <video src={m.mediaUrl} controls playsInline preload="metadata" className="msg-media" />
+                    ) : (
+                      <a href={m.mediaUrl} download={m.fileName || 'file'} target="_blank" rel="noreferrer" className="msg-file">
+                        {m.fileName || 'Download file'}
+                      </a>
+                    )
+                  ) : (
+                    <div className="message-content">{m.text}</div>
+                  )}
                   <div className="message-meta">
                     <span className="timestamp">{formatTime(m.timestamp || m.createdAt)}</span>
                     {m.senderId === currentUserId && (
@@ -369,7 +381,31 @@ const Message = () => {
       {/* Input */}
       <div className="message-input-container">
         <div className="input-wrapper">
-          <button className="attach-btn">
+          <input id="fileInput" type="file" accept="image/*,video/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt" style={{ display:'none' }} onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            try {
+              // Convert to base64 for quick send (or integrate upload service)
+              const toBase64 = (f) => new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(r.result); r.onerror = reject; r.readAsDataURL(f); });
+              const mediaUrl = await toBase64(file);
+              const mediaType = file.type.startsWith('image/') ? 'image' : (file.type.startsWith('video/') ? 'video' : 'file');
+              const payload = { senderId: currentUserId, receiverId: selectedUser._id, text: '', mediaUrl, mediaType, fileName: file.name, fileSize: file.size };
+              // Optimistically add media message
+              const tempMsg = { ...payload, tempId: `temp_${Date.now()}`, timestamp: new Date().toISOString() };
+              setMessages((prev) => [...prev, tempMsg]);
+              socket.emit('sendMessage', tempMsg);
+              const res = await fetch(`${BASE_URL}/messages`, { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(payload) });
+              if (res.ok) {
+                const saved = await res.json();
+                setMessages((prev) => prev.map(m => m.tempId === tempMsg.tempId ? saved : m));
+              }
+            } catch (err) {
+              console.error('❌ File attach failed', err);
+            } finally {
+              e.target.value = '';
+            }
+          }} />
+          <button className="attach-btn" onClick={() => document.getElementById('fileInput').click()}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66L9.64 16.2a2 2 0 0 1-2.83-2.83l8.49-8.49"/>
             </svg>
