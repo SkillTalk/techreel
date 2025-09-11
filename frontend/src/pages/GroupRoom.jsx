@@ -7,6 +7,18 @@ import Peer from "simple-peer-light";
 import { BASE_URL, SOCKET_URL } from "../utils/api";
 import "./GroupRoom.css";
 
+// WebRTC ICE servers (STUN + public TURN fallback for NAT traversal)
+const ICE_SERVERS = [
+  { urls: [
+      "stun:stun.l.google.com:19302",
+      "stun:stun1.l.google.com:19302",
+      "stun:stun2.l.google.com:19302"
+    ] },
+  { urls: "turn:openrelay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" },
+  { urls: "turn:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" },
+  { urls: "turns:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" },
+];
+
 const socket = io(SOCKET_URL, {
   transports: ["websocket", "polling"],
   path: "/socket.io",
@@ -36,6 +48,8 @@ const GroupRoom = () => {
   const [peers, setPeers] = useState({});
   const [showPending, setShowPending] = useState(true);
   const peersRef = useRef([]);
+  // Stable ref map for remote media elements to avoid stale-closure issues
+  const remoteMediaRefsRef = useRef({});
   const userAudioRef = useRef();
   const userVideoRef = useRef();
   const userStreamRef = useRef(null);
@@ -136,7 +150,11 @@ const GroupRoom = () => {
         userStreamRef.current = userStream;
 
         // Set up local video and audio
-        if (userAudioRef.current) userAudioRef.current.srcObject = userStream;
+        if (userAudioRef.current) {
+          userAudioRef.current.srcObject = userStream;
+          // Prevent hearing your own voice locally by default
+          userAudioRef.current.muted = true;
+        }
         if (userVideoRef.current) userVideoRef.current.srcObject = userStream;
 
         // Join voice room
@@ -151,6 +169,7 @@ const GroupRoom = () => {
               const peer = createPeer(userId, socket.id, userStream);
               const audioRef = createRef();
               const videoRef = createRef();
+              remoteMediaRefsRef.current[userId] = { audioRef, videoRef };
               peersRef.current.push({ peerId: userId, peer });
               newPeers[userId] = { peer, audioRef, videoRef };
             }
@@ -164,6 +183,7 @@ const GroupRoom = () => {
           const peer = addPeer(signal, callerId, userStream);
           const audioRef = createRef();
           const videoRef = createRef();
+          remoteMediaRefsRef.current[callerId] = { audioRef, videoRef };
           peersRef.current.push({ peerId: callerId, peer });
           setPeers((prev) => ({ ...prev, [callerId]: { peer, audioRef, videoRef } }));
         });
@@ -188,6 +208,15 @@ const GroupRoom = () => {
               delete newPeers[userId];
               return newPeers;
             });
+            // Clean up media refs
+            const mediaRefs = remoteMediaRefsRef.current[userId];
+            if (mediaRefs?.videoRef?.current) {
+              try { mediaRefs.videoRef.current.srcObject = null; } catch {}
+            }
+            if (mediaRefs?.audioRef?.current) {
+              try { mediaRefs.audioRef.current.srcObject = null; } catch {}
+            }
+            delete remoteMediaRefsRef.current[userId];
           }
         });
 
@@ -217,30 +246,43 @@ const GroupRoom = () => {
   }, [currentUserId, groupId]);
 
   const createPeer = useCallback((userToSignal, callerId, stream) => {
-    const peer = new Peer({ initiator: true, trickle: false, stream });
+    const peer = new Peer({ 
+      initiator: true, 
+      trickle: false, 
+      stream,
+      config: { iceServers: ICE_SERVERS, iceTransportPolicy: "all" }
+    });
     peer.on("signal", (signal) => {
       socket.emit("sending-signal", { userToSignal, callerId, signal });
     });
-    peer.on("stream", (stream) => {
-      const audioRef = peers[userToSignal]?.audioRef;
-      const videoRef = peers[userToSignal]?.videoRef;
-      if (audioRef?.current) audioRef.current.srcObject = stream;
-      if (videoRef?.current) videoRef.current.srcObject = stream;
+    peer.on("stream", (remoteStream) => {
+      const mediaRefs = remoteMediaRefsRef.current[userToSignal];
+      if (mediaRefs?.audioRef?.current) mediaRefs.audioRef.current.srcObject = remoteStream;
+      if (mediaRefs?.videoRef?.current) mediaRefs.videoRef.current.srcObject = remoteStream;
+      // Attempt to play (Safari/iOS autoplay policies)
+      try { mediaRefs?.audioRef?.current?.play?.(); } catch {}
     });
+    peer.on("error", (err) => console.error("❌ Peer error (initiator):", err));
     return peer;
   }, []);
 
   const addPeer = useCallback((incomingSignal, callerId, stream) => {
-    const peer = new Peer({ initiator: false, trickle: false, stream });
+    const peer = new Peer({ 
+      initiator: false, 
+      trickle: false, 
+      stream,
+      config: { iceServers: ICE_SERVERS, iceTransportPolicy: "all" }
+    });
     peer.on("signal", (signal) => {
       socket.emit("returning-signal", { signal, callerId });
     });
-    peer.on("stream", (stream) => {
-      const audioRef = peers[callerId]?.audioRef;
-      const videoRef = peers[callerId]?.videoRef;
-      if (audioRef?.current) audioRef.current.srcObject = stream;
-      if (videoRef?.current) videoRef.current.srcObject = stream;
+    peer.on("stream", (remoteStream) => {
+      const mediaRefs = remoteMediaRefsRef.current[callerId];
+      if (mediaRefs?.audioRef?.current) mediaRefs.audioRef.current.srcObject = remoteStream;
+      if (mediaRefs?.videoRef?.current) mediaRefs.videoRef.current.srcObject = remoteStream;
+      try { mediaRefs?.audioRef?.current?.play?.(); } catch {}
     });
+    peer.on("error", (err) => console.error("❌ Peer error (responder):", err));
     peer.signal(incomingSignal);
     return peer;
   }, []);
@@ -644,13 +686,17 @@ const GroupRoom = () => {
               if (member.user?._id === currentUserId) return null;
               return (
                 <div key={member.user?._id || index} className="video-tile">
-                  <div className="video-placeholder">
-                    <img src={getProfileImage(member.user?.profileImage)} alt="avatar" className="participant-avatar" />
-                    <span className="participant-name">{member.user?.user_id}</span>
-                    {group?.adminId === member.user?._id && (
-                      <span className="admin-badge">Admin</span>
-                    )}
-                  </div>
+                  {peers[member.user?._id]?.videoRef ? (
+                    <video ref={peers[member.user?._id].videoRef} autoPlay playsInline className="video-stream" />
+                  ) : (
+                    <div className="video-placeholder">
+                      <img src={getProfileImage(member.user?.profileImage)} alt="avatar" className="participant-avatar" />
+                      <span className="participant-name">{member.user?.user_id}</span>
+                      {group?.adminId === member.user?._id && (
+                        <span className="admin-badge">Admin</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -690,7 +736,8 @@ const GroupRoom = () => {
       {Object.entries(peers).map(([peerId, { audioRef, videoRef }]) => (
         <div key={peerId}>
           <audio ref={audioRef} autoPlay />
-          <video ref={videoRef} autoPlay />
+          {/* Hidden backup video elements to ensure stream attachment even before tile renders */}
+          <video ref={videoRef} autoPlay playsInline style={{ display: 'none' }} />
         </div>
       ))}
     </div>

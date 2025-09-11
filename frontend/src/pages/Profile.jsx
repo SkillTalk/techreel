@@ -1,5 +1,6 @@
 /*
 import React, { useEffect, useState } from "react";
+import { setJsonLd, removeJsonLd } from "../utils/seo";
 import { useNavigate } from "react-router-dom";
 import imageCompression from "browser-image-compression";
 import axios from "axios";
@@ -73,6 +74,22 @@ const Profile = () => {
       navigate("/login");
     }
   }, [navigate]);
+
+  // Inject Person JSON-LD for the logged-in user (basic public info)
+  useEffect(() => {
+    if (!user) return;
+    const person = {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": user.user_id || "User",
+      ...(user.profileImage ? { "image": user.profileImage } : {}),
+      ...(user.profession ? { "jobTitle": user.profession } : {}),
+      ...(user.bio ? { "description": user.bio } : {}),
+      "url": typeof window !== 'undefined' ? window.location.href : undefined
+    };
+    setJsonLd("jsonld-person", person);
+    return () => removeJsonLd("jsonld-person");
+  }, [user]);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -199,19 +216,19 @@ const Profile = () => {
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
 
-              const fetchUser = async () => {
-          try {
-            const res = await axios.get(`${BASE_URL}/users/${parsedUser._id}`);
-            setUser(res.data.user);
-            const acceptedFollowers = res.data.user.followers?.filter(f => f.status === "accepted") || [];
-            const acceptedFollowing = res.data.user.following?.filter(f => f.status === "accepted") || [];
-            setFollowerCount(acceptedFollowers.length);
-            setFollowingCount(acceptedFollowing.length);
-          } catch (err) {
-            console.error("Failed to fetch user:", err);
-            navigate("/login");
-          }
-        };
+      const fetchUser = async () => {
+        try {
+          const res = await axios.get(`${BASE_URL}/users/${parsedUser._id}`);
+          setUser(res.data.user);
+          const acceptedFollowers = res.data.user.followers?.filter(f => f.status === "accepted") || [];
+          const acceptedFollowing = res.data.user.following?.filter(f => f.status === "accepted") || [];
+          setFollowerCount(acceptedFollowers.length);
+          setFollowingCount(acceptedFollowing.length);
+        } catch (err) {
+          console.error("Failed to fetch user:", err);
+          navigate("/login");
+        }
+      };
 
       const fetchNotifications = async () => {
         try {

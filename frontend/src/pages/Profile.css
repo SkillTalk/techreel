@@ -528,6 +528,9 @@ body {
   font-weight: 700;
 }
 
+/* Portfolio Builder */
+/* Removed portfolio-specific CSS blocks */
+
 .user-details {
   display: flex;
   flex-direction: column;

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { setJsonLd, removeJsonLd } from "../utils/seo";
 import { useParams, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../utils/api";
 
@@ -17,6 +18,22 @@ const PostDetails = () => {
     };
     fetchPost();
   }, [postId]);
+
+  // Inject CreativeWork JSON-LD for the post
+  useEffect(() => {
+    if (!post) return;
+    const data = {
+      "@context": "https://schema.org",
+      "@type": post.mediaType === 'video' ? 'VideoObject' : (post.mediaType === 'image' ? 'ImageObject' : 'CreativeWork'),
+      "name": post.caption || (post.mediaType ? `Skill ${post.mediaType}` : 'Skill item'),
+      "description": post.caption || undefined,
+      "url": typeof window !== 'undefined' ? window.location.href : undefined,
+      ...(post.mediaUrl ? { "contentUrl": post.mediaUrl } : {}),
+      ...(post.userId?.user_id ? { "author": { "@type": "Person", "name": post.userId.user_id } } : {})
+    };
+    setJsonLd("jsonld-post", data);
+    return () => removeJsonLd("jsonld-post");
+  }, [post]);
 
   if (!post) return <div style={{ padding: 16, color: '#111' }}>Loading...</div>;
 

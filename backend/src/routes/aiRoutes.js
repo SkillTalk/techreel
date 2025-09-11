@@ -16,7 +16,7 @@ router.get("/snippet", async (_req, res) => {
       return res.json({ snippet: fallback });
     }
     const openai = new OpenAIClient({ apiKey: process.env.OPENAI_API_KEY });
-    const prompt = "Give a tiny (<=10 lines) playful code snippet in any language that prints a motivational one-liner. No explanation, code only.";
+    const prompt = "Give a tiny (<=10 lines) playful interview level code snippet in any language that prints a output. No explanation, code only.";
     const resp = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
@@ -32,5 +32,4 @@ router.get("/snippet", async (_req, res) => {
 });
 
 module.exports = router;
-
 

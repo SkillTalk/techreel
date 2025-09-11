@@ -1,3 +1,6 @@
-# https://www.robotstxt.org/robotstxt.html
+# robots.txt for SkillTalk
 User-agent: *
 Disallow:
+
+# Point crawlers to the sitemap
+Sitemap: https://app.skilltalk.in/sitemap.xml

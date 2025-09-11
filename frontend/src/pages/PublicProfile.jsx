@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { BASE_URL } from "../utils/api";
+import { BASE_URL, SOCKET_URL } from "../utils/api";
 import io from "socket.io-client";
 import "./PublicProfile.css";
 
-const socket = io(BASE_URL);
+// Connect sockets to the API host, not the REST base (which may include /api)
+const socket = io(SOCKET_URL, { path: "/socket.io" });
 
 const PublicProfile = () => {
   const { id } = useParams();

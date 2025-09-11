@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import { SOCKET_URL, BASE_URL } from "../utils/api";
 import "./message.css";
 
-const socket = io(SOCKET_URL);
+const socket = io(SOCKET_URL, { path: "/socket.io" });
 
 const Message = () => {
   const { id } = useParams();

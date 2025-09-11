@@ -8,6 +8,8 @@
       name="description"
       content="SkillTalk — Connect, Collaborate, and Grow Together!"
     />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://app.skilltalk.in/" />
 
     <!-- ✅ Favicon and Manifest -->
     <link rel="icon" type="image/png" href="%PUBLIC_URL%/favicon-96x96.png" sizes="96x96" />
@@ -19,6 +21,33 @@
 
     <title>SkillTalk | More Than Networking—It’s Skill Chemistry</title>
     
+    <!-- JSON-LD: Organization -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "SkillTalk",
+        "url": "https://app.skilltalk.in/",
+        "logo": "https://app.skilltalk.in/favicon-96x96.png",
+        "sameAs": [
+          "https://app.skilltalk.in/"
+        ]
+      }
+    </script>
+    <!-- JSON-LD: Website with SearchAction -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "SkillTalk",
+        "url": "https://app.skilltalk.in/",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://app.skilltalk.in/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
     <!-- Process polyfill to prevent "Can't find variable: process" error -->
     <script>
       if (typeof window !== 'undefined' && !window.process) {
