@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../utils/api";
@@ -25,7 +25,13 @@ const EditProfile = () => {
   const [newInterest, setNewInterest] = useState("");
   const [isGeneratingBio, setIsGeneratingBio] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [resumeGenerating, setResumeGenerating] = useState(false);
+  const [resumeProgress, setResumeProgress] = useState(0);
+  const [resumeText, setResumeText] = useState("");
+  const [generatedPortfolio, setGeneratedPortfolio] = useState(null);
+  const [projectsDraft, setProjectsDraft] = useState([]);
   const navigate = useNavigate();
+  const resumeTickRef = useRef(null);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -108,33 +114,73 @@ const EditProfile = () => {
     }));
   };
 
-  const generateBioWithAI = async () => {
-    setIsGeneratingBio(true);
+  const handleResumeUpload = async (e) => {
     try {
-      // Create a prompt based on user's information
-      const prompt = `Generate a professional bio for a user with the following information:
-      - Profession: ${editForm.profession || 'Not specified'}
-      - Skills: ${editForm.skills.join(', ') || 'Not specified'}
-      - Experience: ${editForm.experienceYears || 'Not specified'} years
-      - Education: ${editForm.education || 'Not specified'}
-      - Location: ${editForm.location || 'Not specified'}
-      
-      Create a concise, professional bio (2-3 sentences) that highlights their expertise and experience. Make it engaging and suitable for a professional networking platform.`;
-
-      // For now, we'll use a mock response since we don't have ChatGPT API integrated
-      // In a real implementation, you would call the ChatGPT API here
-      const mockBio = `Experienced ${editForm.profession || 'professional'} with ${editForm.experienceYears || 'several'} years of expertise in ${[...editForm.skills, ...editForm.bioCoreSkills].slice(0, 3).join(', ') || 'various technologies'}. Passionate about continuous learning and sharing knowledge with the community.`;
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setEditForm(prev => ({ ...prev, bio: mockBio }));
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const name = (file.name || '').toLowerCase();
+      const isBinary = name.endsWith('.pdf') || name.endsWith('.doc') || name.endsWith('.docx');
+      setResumeGenerating(true);
+      setResumeProgress(0);
+      if (resumeTickRef.current) clearInterval(resumeTickRef.current);
+      resumeTickRef.current = setInterval(() => {
+        setResumeProgress((p) => (p < 90 ? p + 3 : p));
+      }, 150);
+      if (isBinary) {
+        const form = new FormData();
+        form.append('resume', file);
+        const res = await fetch(`${BASE_URL}/ai/portfolio/upload`, { method: 'POST', body: form });
+        const data = await res.json();
+        setGeneratedPortfolio(data?.portfolio || null);
+      } else {
+        const text = await file.text();
+        setResumeText(text);
+        const res = await fetch(`${BASE_URL}/ai/portfolio`, { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ text }) });
+        const data = await res.json();
+        setGeneratedPortfolio(data?.portfolio || null);
+      }
+      setResumeProgress(100);
+      if (resumeTickRef.current) {
+        clearInterval(resumeTickRef.current);
+        resumeTickRef.current = null;
+      }
+      setTimeout(() => setResumeProgress(0), 800);
     } catch (err) {
-      console.error("Error generating bio:", err);
-      alert("Failed to generate bio. Please try again.");
+      console.error('Resume parse/generate failed', err);
+      alert('Could not parse resume. Try another file.');
     } finally {
-      setIsGeneratingBio(false);
+      setResumeGenerating(false);
+      if (resumeTickRef.current) {
+        clearInterval(resumeTickRef.current);
+        resumeTickRef.current = null;
+      }
     }
+  };
+
+  const applyPortfolioToForm = () => {
+    if (!generatedPortfolio) return;
+    const p = generatedPortfolio;
+    setEditForm(prev => ({
+      ...prev,
+      bioHeadline: p.headline || prev.bioHeadline,
+      bioSummary: p.about || prev.bioSummary,
+      bioCoreSkills: Array.isArray(p.skills) ? p.skills.slice(0, 12) : prev.bioCoreSkills,
+      bio: p.about || prev.bio,
+      profession: prev.profession || (p.experience && p.experience[0]?.role) || prev.profession,
+      experienceYears: prev.experienceYears || (Array.isArray(p.experience) ? p.experience.length : prev.experienceYears)
+    }));
+    if (Array.isArray(p.projects)) setProjectsDraft(p.projects.map(pr => ({
+      name: pr.name || "",
+      company: pr.company || "",
+      role: pr.role || "",
+      summary: pr.summary || pr.description || "",
+      impact: pr.impact || "",
+      tools: Array.isArray(pr.tools) ? pr.tools : [],
+      link: pr.link || "",
+      start: pr.start || "",
+      end: pr.end || "",
+      duration: pr.duration || ""
+    })));
   };
 
   const handleSave = async () => {
@@ -149,7 +195,9 @@ const EditProfile = () => {
         return;
       }
       
-      const res = await axios.put(`${BASE_URL}/users/${user._id}`, editForm, {
+      const payload = { ...editForm };
+      if (projectsDraft && projectsDraft.length) payload.portfolioProjects = projectsDraft;
+      const res = await axios.put(`${BASE_URL}/users/${user._id}`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -208,8 +256,30 @@ const EditProfile = () => {
       {/* Form Content */}
       <div className="edit-content">
         <div className="form-section">
-          <h3 className="section-title">Basic Information</h3>
+          <h3 className="section-title">Bio & Portfolio</h3>
           
+          {/* AI Resume to Portfolio */}
+          <div className="form-group">
+            <label className="form-label">Resume → AI Portfolio</label>
+            <div style={{ display:'flex', gap:8, alignItems:'center', flexWrap:'wrap' }}>
+              <input type="file" accept=".pdf,.doc,.docx,.txt" onChange={handleResumeUpload} />
+              {(resumeGenerating || resumeProgress > 0) && (
+                <div style={{ display:'flex', alignItems:'center', gap:8, minWidth:180 }}>
+                  <div style={{ position:'relative', flex:1, height:8, background:'#E5E7EB', borderRadius:999 }}>
+                    <div style={{ position:'absolute', inset:0, width:`${resumeProgress}%`, background:'linear-gradient(135deg,#00ff94,#00c3ff)', borderRadius:999, transition:'width .15s linear' }} />
+                  </div>
+                  <span style={{ fontSize:12, color:'#374151', minWidth:34, textAlign:'right' }}>{Math.min(100, Math.max(0, Math.round(resumeProgress)))}%</span>
+                </div>
+              )}
+              {generatedPortfolio && (
+                <button className="ai-generate-btn" onClick={applyPortfolioToForm}>Apply to Bio</button>
+              )}
+            </div>
+            {generatedPortfolio && (
+              <pre className="form-textarea" style={{whiteSpace:'pre-wrap', background:'#0b0f14', color:'#e5e7eb', border:'1px solid #1f2950', padding:10}}>{JSON.stringify(generatedPortfolio, null, 2)}</pre>
+            )}
+          </div>
+
           {/* Bio Section */}
           <div className="form-group">
             <label className="form-label">Bio</label>
@@ -221,13 +291,6 @@ const EditProfile = () => {
                 placeholder="Tell us about yourself, your experience, and what you're passionate about..."
                 rows={4}
               />
-              <button 
-                className="ai-generate-btn"
-                onClick={generateBioWithAI}
-                disabled={isGeneratingBio}
-              >
-                {isGeneratingBio ? "Generating..." : "🤖 Generate with AI"}
-              </button>
             </div>
           </div>
 
@@ -296,132 +359,17 @@ const EditProfile = () => {
             />
           </div>
 
-          {/* Skills Section */}
-          <div className="form-group">
-            <label className="form-label">Skills</label>
-            <div className="tags-input-group">
-              <div className="tags-container">
-                {editForm.skills.map((skill, index) => (
-                  <span key={index} className="tag">
-                    {skill}
-                    <button 
-                      className="tag-remove"
-                      onClick={() => removeSkill(skill)}
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-              <div className="tag-input">
-                <input
-                  type="text"
-                  value={newSkill}
-                  onChange={(e) => setNewSkill(e.target.value)}
-                  placeholder="Add a skill..."
-                  onKeyPress={(e) => e.key === 'Enter' && addSkill()}
-                />
-                <button className="add-tag-btn" onClick={addSkill}>+</button>
-              </div>
-            </div>
-          </div>
-
-          {/* Profession */}
+          {/* Keep minimal meta fields */}
           <div className="form-group">
             <label className="form-label">Profession</label>
-            <input
-              type="text"
-              className="form-input"
-              value={editForm.profession}
-              onChange={(e) => handleInputChange('profession', e.target.value)}
-              placeholder="e.g., Software Engineer, Designer, Consultant"
-            />
+            <input type="text" className="form-input" value={editForm.profession} onChange={(e)=>handleInputChange('profession', e.target.value)} placeholder="e.g., Design Verification Engineer" />
           </div>
-
-          {/* Experience */}
           <div className="form-group">
             <label className="form-label">Years of Experience</label>
-            <input
-              type="number"
-              className="form-input"
-              value={editForm.experienceYears}
-              onChange={(e) => handleInputChange('experienceYears', e.target.value)}
-              placeholder="e.g., 5"
-              min="0"
-              max="50"
-            />
+            <input type="number" className="form-input" value={editForm.experienceYears} onChange={(e)=>handleInputChange('experienceYears', e.target.value)} placeholder="e.g., 6" min="0" max="50" />
           </div>
         </div>
-
-        <div className="form-section">
-          <h3 className="section-title">Additional Information</h3>
-          
-          {/* Location */}
-          <div className="form-group">
-            <label className="form-label">Location</label>
-            <input
-              type="text"
-              className="form-input"
-              value={editForm.location}
-              onChange={(e) => handleInputChange('location', e.target.value)}
-              placeholder="e.g., San Francisco, CA"
-            />
-          </div>
-
-          {/* Education */}
-          <div className="form-group">
-            <label className="form-label">Education</label>
-            <input
-              type="text"
-              className="form-input"
-              value={editForm.education}
-              onChange={(e) => handleInputChange('education', e.target.value)}
-              placeholder="e.g., Bachelor's in Computer Science"
-            />
-          </div>
-
-          {/* Interests */}
-          <div className="form-group">
-            <label className="form-label">Interests</label>
-            <div className="tags-input-group">
-              <div className="tags-container">
-                {editForm.interests.map((interest, index) => (
-                  <span key={index} className="tag">
-                    {interest}
-                    <button 
-                      className="tag-remove"
-                      onClick={() => removeInterest(interest)}
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
-              <div className="tag-input">
-                <input
-                  type="text"
-                  value={newInterest}
-                  onChange={(e) => setNewInterest(e.target.value)}
-                  placeholder="Add an interest..."
-                  onKeyPress={(e) => e.key === 'Enter' && addInterest()}
-                />
-                <button className="add-tag-btn" onClick={addInterest}>+</button>
-              </div>
-            </div>
-          </div>
-
-          {/* Website */}
-          <div className="form-group">
-            <label className="form-label">Website</label>
-            <input
-              type="url"
-              className="form-input"
-              value={editForm.website}
-              onChange={(e) => handleInputChange('website', e.target.value)}
-              placeholder="https://yourwebsite.com"
-            />
-          </div>
-        </div>
+        {/* Keep advanced fields minimal; removed extra interests/website/location to streamline */}
       </div>
     </div>
   );

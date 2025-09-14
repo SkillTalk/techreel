@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL, SOCKET_URL } from "../utils/api";
 import io from "socket.io-client";
-import "./PublicProfile.css";
+import "./Profile.css";
 
 // Connect sockets to the API host, not the REST base (which may include /api)
 const socket = io(SOCKET_URL, { path: "/socket.io" });
@@ -128,261 +128,243 @@ const PublicProfile = () => {
   );
 
   return (
-    <div className="public-profile-container">
-      {/* Header */}
-      <div className="public-header">
-        <div className="header-left">
-          <button 
-            className="back-btn" 
-            onClick={() => navigate(-1)}
-          >
-            ← Back
-          </button>
-          <h1 className="public-app-title">SkillTalk</h1>
-        </div>
-        <div className="header-right">
-          {currentUser && (
-            <div 
-              className="user-avatar"
-              onClick={() => navigate("/profile")}
-              title="Go to your profile"
-            >
-              <img 
-                src={currentUser.profileImage || "/assets/signup_page.png"} 
-                alt="Your Profile"
-                className="avatar-image"
-              />
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Profile Section */}
-      <div className="public-profile-section">
-        <div className="public-profile-info">
-          <div className="public-profile-image-container">
-            <div 
-              className="public-profile-image-wrapper"
-              onClick={() => {
-                if (user.profileImage) {
-                  window.open(user.profileImage, "_blank");
-                }
-              }}
-            >
-              <img
-                src={user.profileImage || "/assets/signup_page.png"}
-                alt="Profile"
-                className="public-profile-image"
-              />
-              {user.profileImage && (
-                <div className="public-image-overlay">
-                  <span className="view-full-icon">👁️</span>
-                  <span className="view-full-text">View Full Image</span>
-                </div>
-              )}
-            </div>
-            <div className="profile-status">
-              <span className="status-dot"></span>
-              <span className="status-text">Active</span>
-            </div>
+    <div className="profile-page">
+      <div className="profile-container">
+        {/* Header */}
+        <div className="profile-header">
+          <div className="header-left">
+            <button className="back-btn" onClick={() => navigate(-1)}>← Back</button>
           </div>
-          
-          <div className="public-profile-details">
-            <h2 className="public-username">{user.user_id}</h2>
-            <div className="public-stats-row">
-              <div className="public-stat-item" onClick={() => navigate(`/followers/${user._id}`)}>
-                <span className="public-stat-number">{user.followers?.filter(f => f.status === "accepted").length || 0}</span>
-                <span className="public-stat-label">Followers</span>
+          <div className="header-right"></div>
+        </div>
+
+        {/* Profile Section */}
+        <div className="profile-section">
+          <div className="profile-info">
+            <div className="profile-image-container">
+              <div className="profile-image-wrapper" onClick={() => user.profileImage && window.open(user.profileImage, "_blank") }>
+                <img src={user.profileImage || "/assets/signup_page.png"} alt="Profile" className="profile-image" />
               </div>
-              <div className="public-stat-item" onClick={() => navigate(`/following/${user._id}`)}>
-                <span className="public-stat-number">{user.following?.filter(f => f.status === "accepted").length || 0}</span>
-                <span className="public-stat-label">Following</span>
+            </div>
+            <div className="profile-details">
+              <h2 className="username">@{user.user_id}</h2>
+              <div className="stats-row">
+                <div className="stat-item" onClick={() => navigate(`/followers/${user._id}`)}>
+                  <span className="stat-number">{user.followers?.filter(f => f.status === "accepted").length || 0}</span>
+                  <span className="stat-label">Followers</span>
+                </div>
+                <div className="stat-item" onClick={() => navigate(`/following/${user._id}`)}>
+                  <span className="stat-number">{user.following?.filter(f => f.status === "accepted").length || 0}</span>
+                  <span className="stat-label">Following</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Enhanced Bio Section */}
-        <div className="public-bio-section">
-          <div className="public-bio-content">
-            <div className="public-bio-main">
-              <p className="public-bio-text">{user.bio || "No bio available. This user hasn't shared anything about themselves yet."}</p>
-            </div>
-            
-            {/* Structured Bio (public view) */}
-            <div className="bio-structured" role="region" aria-label="Profile summary">
-              {user.bioHeadline ? (
-                <div className="bio-row">
-                  <span className="bio-key">Headline</span>
-                  <span className="bio-value">{user.bioHeadline}</span>
-                </div>
-              ) : null}
-              {user.bioSummary ? (
-                <div className="bio-row">
-                  <span className="bio-key">Summary</span>
-                  <span className="bio-value">{user.bioSummary}</span>
-                </div>
-              ) : null}
-              {Array.isArray(user.bioCoreSkills) && user.bioCoreSkills.length > 0 ? (
-                <div className="bio-row">
-                  <span className="bio-key">Core Skills</span>
-                  <span className="bio-chips">
-                    {user.bioCoreSkills.map((s, i) => (
-                      <span key={`${s}-${i}`} className="chip">{s}</span>
-                    ))}
-                  </span>
-                </div>
-              ) : null}
-              {user.bioMotivation ? (
-                <div className="bio-row">
-                  <span className="bio-key">Motivation</span>
-                  <span className="bio-value">{user.bioMotivation}</span>
-                </div>
-              ) : null}
-              {user.bioCurrentFocus ? (
-                <div className="bio-row">
-                  <span className="bio-key">Current Focus</span>
-                  <span className="bio-value">{user.bioCurrentFocus}</span>
-                </div>
-              ) : null}
-            </div>
-
-            {/* User Details */}
-            <div className="public-user-details">
-              {user.location && (
-                <div className="public-detail-item">
-                  <span className="public-detail-icon">📍</span>
-                  <span className="public-detail-text">{user.location}</span>
-                </div>
-              )}
-              {user.profession && (
-                <div className="public-detail-item">
-                  <span className="public-detail-icon">💼</span>
-                  <span className="public-detail-text">{user.profession}</span>
-                </div>
-              )}
-              {user.education && (
-                <div className="public-detail-item">
-                  <span className="public-detail-icon">🎓</span>
-                  <span className="public-detail-text">{user.education}</span>
-                </div>
-              )}
-              {user.skills && user.skills.length > 0 && (
-                <div className="public-detail-item">
-                  <span className="public-detail-icon">🛠️</span>
-                  <span className="public-detail-text">{user.skills.join(", ")}</span>
-                </div>
-              )}
-              {user.interests && user.interests.length > 0 && (
-                <div className="public-detail-item">
-                  <span className="public-detail-icon">❤️</span>
-                  <span className="public-detail-text">{user.interests.join(", ")}</span>
-                </div>
-              )}
-              {user.website && (
-                <div className="public-detail-item">
-                  <span className="public-detail-icon">🌐</span>
-                  <a href={user.website} target="_blank" rel="noopener noreferrer" className="public-detail-link">
-                    {user.website}
-                  </a>
-                </div>
+          {/* Actions: Follow/Unfollow + Message */}
+          {currentUser && currentUser._id !== user._id && (
+            <div style={{ display:'flex', gap:12, flexWrap:'wrap', margin:'8px 0 16px' }}>
+              {followStatus === "accepted" ? (
+                <>
+                  <button
+                    onClick={handleUnfollow}
+                    style={{ padding:'12px 18px', borderRadius:12, border:'2px solid #e5e7eb', background:'#fff', color:'#111827', fontWeight:700, cursor:'pointer' }}
+                  >
+                    Unfollow
+                  </button>
+                  <button
+                    onClick={() => navigate(`/message/${user._id}`, { state: { selectedUser: user } })}
+                    style={{ padding:'12px 18px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#667eea 0%, #764ba2 100%)', color:'#fff', fontWeight:700, cursor:'pointer', boxShadow:'0 6px 18px rgba(102,126,234,.35)' }}
+                  >
+                    Message
+                  </button>
+                </>
+              ) : followStatus === "pending" ? (
+                <>
+                  <button
+                    onClick={handleUnfollow}
+                    style={{ padding:'12px 18px', borderRadius:12, border:'2px solid #e5e7eb', background:'#fff', color:'#111827', fontWeight:700, cursor:'pointer' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => navigate(`/message/${user._id}`, { state: { selectedUser: user } })}
+                    style={{ padding:'12px 18px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#667eea 0%, #764ba2 100%)', color:'#fff', fontWeight:700, cursor:'pointer', boxShadow:'0 6px 18px rgba(102,126,234,.35)' }}
+                  >
+                    Message
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleFollow}
+                    style={{ padding:'12px 18px', borderRadius:12, border:'2px solid #e5e7eb', background:'#fff', color:'#111827', fontWeight:700, cursor:'pointer' }}
+                  >
+                    Follow
+                  </button>
+                  <button
+                    onClick={() => navigate(`/message/${user._id}`, { state: { selectedUser: user } })}
+                    style={{ padding:'12px 18px', borderRadius:12, border:'none', background:'linear-gradient(135deg,#667eea 0%, #764ba2 100%)', color:'#fff', fontWeight:700, cursor:'pointer', boxShadow:'0 6px 18px rgba(102,126,234,.35)' }}
+                  >
+                    Message
+                  </button>
+                </>
               )}
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      {currentUser && currentUser._id !== user._id && (
-        <div className="public-action-buttons">
-          {followStatus === "accepted" ? (
-            <>
-              <button className="public-action-btn secondary" onClick={handleUnfollow}>
-                <span className="public-btn-icon">👥</span>
-                <span className="public-btn-text">Unfollow</span>
-              </button>
-              <button 
-                className="public-action-btn primary" 
-                onClick={() => navigate(`/message/${user._id}`, { state: { selectedUser: user } })}
-              >
-                <span className="public-btn-icon">💬</span>
-                <span className="public-btn-text">Message</span>
-              </button>
-            </>
-          ) : followStatus === "pending" ? (
-            <>
-              <button className="public-action-btn secondary" onClick={handleUnfollow}>
-                <span className="public-btn-icon">⏳</span>
-                <span className="public-btn-text">Cancel</span>
-              </button>
-              <button 
-                className="public-action-btn primary" 
-                onClick={() => navigate(`/message/${user._id}`, { state: { selectedUser: user } })}
-              >
-                <span className="public-btn-icon">💬</span>
-                <span className="public-btn-text">Message</span>
-              </button>
-            </>
-          ) : (
-            <>
-              <button className="public-action-btn accent" onClick={handleFollow}>
-                <span className="public-btn-icon">➕</span>
-                <span className="public-btn-text">Follow</span>
-              </button>
-              <button 
-                className="public-action-btn primary" 
-                onClick={() => navigate(`/message/${user._id}`, { state: { selectedUser: user } })}
-              >
-                <span className="public-btn-icon">💬</span>
-                <span className="public-btn-text">Message</span>
-              </button>
-            </>
           )}
-        </div>
-      )}
 
-      {/* Public Showcase Section */}
-      <div className="public-posts-section">
-        <div className="public-posts-header">
-          <h3 className="public-posts-title">Showcase</h3>
-          <div className="public-posts-tabs">
-            <button 
-              className={`public-tab-btn ${activeTab === 'all' ? 'active' : ''}`}
-              onClick={() => setActiveTab('all')}
-            >All</button>
-            <button 
-              className={`public-tab-btn ${activeTab === 'skillshot' ? 'active' : ''}`}
-              onClick={() => setActiveTab('skillshot')}
-            >SkillShots</button>
-            <button 
-              className={`public-tab-btn ${activeTab === 'skillclip' ? 'active' : ''}`}
-              onClick={() => setActiveTab('skillclip')}
-            >SkillClips</button>
-          </div>
-        </div>
+          {/* Bio Section */}
+          <div className="bio-section">
+            <div className="bio-content">
+              <div className="bio-main">
+                <h4 className="bio-label">Bio</h4>
+                <p className="bio-text">{user.bio || "No bio available. This user hasn't shared anything about themselves yet."}</p>
+              </div>
 
-        <div className="public-posts-grid">
-          {(() => {
-            const items = activeTab === 'all' ? posts : posts.filter(p => p.kind === activeTab);
-            if (!items.length) return <p className="public-empty-text">No showcase items yet.</p>;
-            return items.map((p, idx) => (
-              <div 
-                key={p._id} 
-                className={`public-post-card ${p.mediaType === 'video' ? 'public-reel-card' : ''}`}
-                onClick={() => setLightbox({ open: true, index: posts.findIndex(x => x._id === p._id) })}
-              >
-                {p.mediaType === 'image' ? (
-                  <div className="public-post-image">
-                    <img src={p.mediaUrl} alt={p.caption || 'SkillShot'} />
+              <div className="bio-structured" role="region" aria-label="Profile summary">
+                {user.bioHeadline ? (
+                  <div className="bio-row">
+                    <span className="bio-key">Headline</span>
+                    <span className="bio-value">{user.bioHeadline}</span>
                   </div>
-                ) : (
-                  <div className="public-post-video">
-                    <video src={p.mediaUrl} playsInline preload="metadata" />
+                ) : null}
+                {user.bioSummary ? (
+                  <div className="bio-row">
+                    <span className="bio-key">Summary</span>
+                    <span className="bio-value">{user.bioSummary}</span>
+                  </div>
+                ) : null}
+                {Array.isArray(user.bioCoreSkills) && user.bioCoreSkills.length > 0 ? (
+                  <div className="bio-row">
+                    <span className="bio-key">Core Skills</span>
+                    <span className="bio-chips">
+                      {user.bioCoreSkills.map((s, i) => (
+                        <span key={`${s}-${i}`} className="chip">{s}</span>
+                      ))}
+                    </span>
+                  </div>
+                ) : null}
+                {user.bioMotivation ? (
+                  <div className="bio-row">
+                    <span className="bio-key">Motivation</span>
+                    <span className="bio-value">{user.bioMotivation}</span>
+                  </div>
+                ) : null}
+                {user.bioCurrentFocus ? (
+                  <div className="bio-row">
+                    <span className="bio-key">Current Focus</span>
+                    <span className="bio-value">{user.bioCurrentFocus}</span>
+                  </div>
+                ) : null}
+              </div>
+
+              {/* Projects and basic details */}
+              <div className="user-details">
+                {Array.isArray(user.portfolioProjects) && user.portfolioProjects.length > 0 && (
+                  <div className="detail-item" style={{ display:'block' }}>
+                    <span className="detail-icon">📁</span>
+                    <div className="detail-content">
+                      <span className="detail-label">Projects</span>
+                      <div style={{ display:'grid', gap:14 }}>
+                        {user.portfolioProjects.map((pr, idx) => {
+                          const when = [pr.start, pr.end].filter(Boolean).join(' – ') || (pr.duration || '');
+                          const bullets = (pr.summary || pr.impact || '')
+                            .split(/\n|\.|•|\-/)
+                            .map(s => s.trim())
+                            .filter(Boolean)
+                            .slice(0,6);
+                          return (
+                            <div key={idx} style={{ background:'rgba(255,255,255,0.96)', border:'1px solid #e5e7eb', borderRadius:12, padding:12 }}>
+                              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8, flexWrap:'wrap' }}>
+                                <div>
+                                  <div style={{ fontWeight:700, color:'#111827' }}>{pr.name || 'Project'}</div>
+                                  {(pr.role || pr.company) && (
+                                    <div style={{ color:'#374151', marginTop:2, fontSize:13 }}>
+                                      {pr.role ? pr.role : ''}{pr.role && pr.company ? ' @ ' : ''}{pr.company || ''}
+                                    </div>
+                                  )}
+                                </div>
+                                <div style={{ color:'#6b7280', fontSize:12 }}>{when}</div>
+                              </div>
+                              {bullets.length > 0 && (
+                                <ul style={{ margin:'8px 0 0', paddingLeft:18, color:'#374151', lineHeight:1.45, fontSize:13 }}>
+                                  {bullets.map((b,i)=>(<li key={i}>{b}</li>))}
+                                </ul>
+                              )}
+                              {Array.isArray(pr.tools) && pr.tools.length > 0 && (
+                                <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginTop:10 }}>
+                                  {pr.tools.slice(0,14).map((t, i) => (
+                                    <span key={i} className="chip" style={{ background:'#eef2ff', border:'1px solid #e5e7eb', color:'#1f2937' }}>{t}</span>
+                                  ))}
+                                </div>
+                              )}
+                              {pr.link && <a href={pr.link} target="_blank" rel="noreferrer" className="detail-link" style={{ marginTop:10, display:'inline-block' }}>View</a>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {user.profession && (
+                  <div className="detail-item">
+                    <span className="detail-icon">💼</span>
+                    <div className="detail-content">
+                      <span className="detail-label">Profession</span>
+                      <span className="detail-text">{user.profession}</span>
+                    </div>
+                  </div>
+                )}
+                {user.experienceYears && (
+                  <div className="detail-item">
+                    <span className="detail-icon">📅</span>
+                    <div className="detail-content">
+                      <span className="detail-label">Experience</span>
+                      <span className="detail-text">{user.experienceYears} years</span>
+                    </div>
                   </div>
                 )}
               </div>
-            ));
-          })()}
+            </div>
+          </div>
+        </div>
+
+        {/* Follow/Message actions moved above; old block removed */}
+
+        {/* Showcase Section */}
+        <div className="posts-section">
+          <div className="posts-header">
+            <h3 className="posts-title">Showcase</h3>
+            <div className="posts-tabs">
+              <button className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`} onClick={() => setActiveTab('all')}>All</button>
+              <button className={`tab-btn ${activeTab === 'skillshot' ? 'active' : ''}`} onClick={() => setActiveTab('skillshot')}>SkillShots</button>
+              <button className={`tab-btn ${activeTab === 'skillclip' ? 'active' : ''}`} onClick={() => setActiveTab('skillclip')}>SkillClips</button>
+            </div>
+          </div>
+
+          <div className="posts-grid">
+            {(() => {
+              const items = activeTab === 'all' ? posts : posts.filter(p => p.kind === activeTab);
+              if (!items.length) return null;
+              return items.map((p) => (
+                <div 
+                  key={p._id} 
+                  className={`post-card ${p.mediaType === 'video' ? 'reel-card' : ''}`}
+                  onClick={() => setLightbox({ open: true, index: posts.findIndex(x => x._id === p._id) })}
+                >
+                  {p.mediaType === 'image' ? (
+                    <div className="post-image">
+                      <img src={p.mediaUrl} alt={p.caption || 'SkillShot'} />
+                    </div>
+                  ) : (
+                    <div className="post-video">
+                      <video src={p.mediaUrl} playsInline preload="metadata" />
+                    </div>
+                  )}
+                </div>
+              ));
+            })()}
+          </div>
         </div>
       </div>
 

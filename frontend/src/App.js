@@ -11,6 +11,7 @@ import "react-toastify/dist/ReactToastify.css";
 import LandingPage from "./pages/LandingPage";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import Payment from "./pages/Payment";
 import Profile from "./pages/Profile";
 import PublicProfile from "./pages/PublicProfile";
 import EditProfile from "./pages/EditProfile";
@@ -28,6 +29,7 @@ import JoinGroup from "./pages/JoinGroup";
 import GroupRoom from "./pages/GroupRoom";
 import PrivateRedirect from "./pages/PrivateRedirect";
 import PostDetails from "./pages/PostDetails";
+import ResetPassword from "./pages/ResetPassword";
 
 
 function App() {
@@ -65,6 +67,8 @@ function App() {
   {/* ✅ Real-Time Messaging Route */}
   <Route path="/message/:id" element={<Message />} />
   <Route path="/post/:postId" element={<PostDetails />} />
+  <Route path="/reset-password" element={<ResetPassword />} />
+  <Route path="/pay/:groupId" element={<Payment />} />
 </Routes>
 
       {/* Toast Notifications */}

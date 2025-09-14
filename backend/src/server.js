@@ -33,7 +33,7 @@ const app = require("./app");
 const mongoose = require("mongoose");
 const { Server } = require("socket.io");
 
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT || 5001);
 
 // 1. MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {

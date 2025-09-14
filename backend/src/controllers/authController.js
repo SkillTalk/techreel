@@ -28,6 +28,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const User = require("../models/User");
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
 
 /* ---------------------- helpers ---------------------- */
 
@@ -201,5 +203,112 @@ exports.login = async (req, res) => {
   } catch (err) {
     console.error("❌ Login error:", err);
     res.status(500).json({ message: "Server error during login" });
+  }
+};
+
+/* ---------------------- password reset ---------------------- */
+
+function buildMailer() {
+  const host = process.env.SMTP_HOST;
+  const port = Number(process.env.SMTP_PORT || 587);
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  if (!host || !user || !pass) return null;
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: { user, pass },
+  });
+}
+
+// Basic in-memory rate limit bucket for reset requests (per process)
+const resetBuckets = Object.create(null); // key -> { count, windowStart }
+const RESET_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const RESET_MAX_REQUESTS = 5; // per identifier or IP per hour
+
+function allowReset(identifier, ip) {
+  const key = (identifier || ip || "unknown").toLowerCase();
+  const now = Date.now();
+  const bucket = resetBuckets[key] || { count: 0, windowStart: now };
+  if (now - bucket.windowStart > RESET_WINDOW_MS) {
+    bucket.count = 0;
+    bucket.windowStart = now;
+  }
+  bucket.count += 1;
+  resetBuckets[key] = bucket;
+  return bucket.count <= RESET_MAX_REQUESTS;
+}
+
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { identifier } = req.body; // email or user_id
+    if (!identifier) return res.status(400).json({ message: "identifier required" });
+
+    // Simple rate limit (identifier or IP)
+    if (!allowReset(identifier, req.ip)) {
+      // Always 200 to avoid enumeration
+      return res.json({ ok: true });
+    }
+
+    // Lookup by email first then user_id
+    let user = await User.findOne({ email: identifier.toLowerCase() });
+    if (!user) user = await User.findOne({ user_id: identifier });
+    // Always respond OK to avoid user enumeration
+    if (!user || !user.email) return res.json({ ok: true });
+
+    const token = crypto.randomBytes(24).toString("hex");
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const expires = new Date(Date.now() + 1000 * 60 * 30); // 30 min
+    user.resetPasswordToken = tokenHash;
+    user.resetPasswordExpires = expires;
+    await user.save();
+
+    const appUrl = process.env.APP_URL || "https://app.skilltalk.in";
+    const link = `${appUrl}/reset-password?token=${token}`;
+
+    const transporter = buildMailer();
+    if (!transporter) return res.status(500).json({ message: "Email service not configured" });
+
+    await transporter.sendMail({
+      from: process.env.MAIL_FROM || "SkillTalk <no-reply@skilltalk.in>",
+      to: user.email,
+      subject: "Reset your SkillTalk password",
+      html: `<p>We received a request to reset your password.</p>
+             <p><a href="${link}">Click here to reset</a>. This link expires in 30 minutes.</p>
+             <p>If you didn't request this, please ignore.</p>`,
+    });
+
+    return res.json({ ok: true });
+  } catch (e) {
+    console.error("forgotPassword error", e);
+    return res.status(500).json({ message: "Unable to send reset link" });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) return res.status(400).json({ message: "token and newPassword required" });
+    // Enforce password strength (min 8 chars, letter+number)
+    const strong = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+    if (!strong.test(newPassword)) {
+      return res.status(400).json({ message: "Password must be 8+ chars with letters and numbers" });
+    }
+
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const user = await User.findOne({
+      resetPasswordToken: tokenHash,
+      resetPasswordExpires: { $gt: new Date() },
+    });
+    if (!user) return res.status(400).json({ message: "Invalid or expired token" });
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+    return res.json({ ok: true });
+  } catch (e) {
+    console.error("resetPassword error", e);
+    return res.status(500).json({ message: "Unable to reset password" });
   }
 };

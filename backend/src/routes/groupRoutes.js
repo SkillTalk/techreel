@@ -1,11 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const Group = require("../models/Group");
+const mongoose = require("mongoose");
 
 // Create a new group
 router.post("/create", async (req, res) => {
   try {
-    const { name, isPublic, maxMembers, adminId } = req.body;
+    const { name, isPublic, maxMembers, adminId, category, isPaid, price, currency } = req.body;
     console.log("🔍 Creating group with data:", { name, isPublic, maxMembers, adminId });
     
     if (!name || !adminId) {
@@ -13,11 +14,18 @@ router.post("/create", async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing fields" });
     }
 
+    const paid = Boolean(isPaid);
+    const isPublicFinal = paid ? false : (isPublic !== undefined ? isPublic : true);
+
     const newGroup = new Group({
       name,
-      isPublic: isPublic !== undefined ? isPublic : true,
+      isPublic: isPublicFinal,
       maxMembers: maxMembers || 10,
       adminId,
+      category: category || undefined,
+      isPaid: paid,
+      price: paid ? Number(price || 0) : 0,
+      currency: currency || undefined,
       members: [{ user: adminId }],
     });
 
@@ -32,10 +40,18 @@ router.post("/create", async (req, res) => {
   }
 });
 
-// Get all groups
+// Get all groups — supports filters: category, type (public|private|paid)
 router.get("/", async (req, res) => {
   try {
-    const groups = await Group.find()
+    const { category, type, q } = req.query;
+    const filter = {};
+    if (category) filter.category = category;
+    if (type === "public") filter.isPublic = true;
+    if (type === "private") filter.isPublic = false;
+    if (type === "paid") filter.isPaid = true;
+    if (q) filter.name = { $regex: String(q), $options: "i" };
+
+    const groups = await Group.find(filter)
       .populate("adminId", "user_id")
       .populate("members.user", "user_id profileImage")
       .sort({ createdAt: -1 });
@@ -45,6 +61,63 @@ router.get("/", async (req, res) => {
   } catch (err) {
     console.error("❌ Error fetching groups:", err);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Helper to check membership status for a user
+function isActiveMember(group, userId) {
+  if (!group || !Array.isArray(group.members)) return false;
+  const item = group.members.find((m) => String(m.user) === String(userId));
+  if (!item) return false;
+  if (!group.isPaid) return true; // free/private groups: treat as active
+  if (!item.expiresAt) return false;
+  return new Date(item.expiresAt) > new Date();
+}
+
+// GET /groups/:groupId/status?userId=xyz → { isMember, isActive, expiresAt }
+router.get("/:groupId/status", async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const { userId } = req.query;
+    if (!mongoose.isValidObjectId(groupId) || !userId) {
+      return res.status(400).json({ success: false, message: "Invalid params" });
+    }
+    const group = await Group.findById(groupId);
+    if (!group) return res.status(404).json({ success: false, message: "Group not found" });
+    const member = group.members.find((m) => String(m.user) === String(userId));
+    const active = isActiveMember(group, userId);
+    return res.json({ success: true, isMember: Boolean(member), isActive: active, expiresAt: member?.expiresAt || null, isPaid: group.isPaid, price: group.price, currency: group.currency });
+  } catch (err) {
+    console.error("❌ status error", err);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// POST /groups/:groupId/paid-join → simulate payment success then grant 3-day access
+router.post("/:groupId/paid-join", async (req, res) => {
+  try {
+    const { groupId } = req.params;
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ success: false, message: "Missing userId" });
+    const group = await Group.findById(groupId);
+    if (!group) return res.status(404).json({ success: false, message: "Group not found" });
+    if (!group.isPaid) return res.status(400).json({ success: false, message: "Group is not paid" });
+
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); // +3 days
+
+    const idx = group.members.findIndex((m) => String(m.user) === String(userId));
+    if (idx >= 0) {
+      // renew
+      group.members[idx].expiresAt = expiresAt;
+    } else {
+      group.members.push({ user: userId, expiresAt });
+    }
+    await group.save();
+    return res.json({ success: true, expiresAt });
+  } catch (err) {
+    console.error("❌ paid-join error", err);
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 });
 

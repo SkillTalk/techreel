@@ -54,6 +54,27 @@ const userSchema = new mongoose.Schema(
     bioCoreSkills: { type: [String], default: [] },
     bioMotivation: { type: String, trim: true },
     bioCurrentFocus: { type: String, trim: true },
+    // Portfolio Projects generated from resume AI
+    portfolioProjects: {
+      type: [
+        new mongoose.Schema(
+          {
+            name: { type: String, trim: true },
+            company: { type: String, trim: true },
+            role: { type: String, trim: true },
+            summary: { type: String, trim: true },
+            impact: { type: String, trim: true },
+            tools: { type: [String], default: [] },
+            link: { type: String, trim: true },
+            start: { type: String, trim: true },
+            end: { type: String, trim: true },
+            duration: { type: String, trim: true },
+          },
+          { _id: false }
+        ),
+      ],
+      default: [],
+    },
     website: { type: String, trim: true },
     profileImage: { type: String, default: "" },
     profession: { type: String, trim: true },
@@ -61,6 +82,10 @@ const userSchema = new mongoose.Schema(
     location: { type: String, trim: true },
     education: { type: String, trim: true },
     interests: { type: [String], default: [] },
+
+    // Password reset
+    resetPasswordToken: { type: String, index: true },
+    resetPasswordExpires: { type: Date },
 
     followers: [
       {

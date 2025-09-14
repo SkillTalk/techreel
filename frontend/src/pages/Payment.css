@@ -1,0 +1,60 @@
+.pay-page {
+  min-height: 100vh;
+  background: radial-gradient(1200px 600px at 10% 10%, rgba(34,211,238,.08), transparent),
+              radial-gradient(900px 500px at 90% 20%, rgba(20,184,166,.08), transparent),
+              linear-gradient(135deg, #0f1220, #121629 60%, #0f1220);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.pay-card {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(15,18,32,.7);
+  border: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 20px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  color: #e5e7eb;
+  padding: 18px 18px 22px;
+}
+
+.pay-header { display:flex; justify-content: space-between; align-items:center; margin-bottom: 8px; }
+.brand { font-weight: 800; letter-spacing: .3px; color: #7dd3fc; }
+.secure { font-size: 12px; opacity: .8; display:flex; align-items:center; gap:6px; }
+
+.pay-title { font-size: 22px; font-weight: 800; color:#fff; margin-top: 6px; }
+.pay-subtitle { font-size: 14px; color:#a7b0c0; margin-top: 2px; }
+
+.pay-price { display:flex; align-items:center; justify-content: space-between; margin-top: 14px; }
+.amount { display:flex; gap:8px; align-items:baseline; }
+.currency { font-size: 14px; color:#93c5fd; }
+.value { font-size: 32px; font-weight: 800; color:#fff; }
+.badge { font-size: 12px; padding: 6px 10px; border-radius: 999px; background:#062a31; color:#7de2ff; border:1px solid #155e75; }
+
+.pay-features { list-style: none; padding: 0; margin: 14px 0 6px; display:grid; gap:6px; }
+.pay-features li { font-size: 13px; color:#c7ceda; position: relative; padding-left: 18px; }
+.pay-features li::before { content: '✓'; position:absolute; left:0; color:#22d3ee; }
+
+.pay-methods { display:flex; gap:8px; flex-wrap:wrap; margin: 10px 0 14px; }
+.method { font-size:12px; padding:6px 10px; border-radius: 10px; background:#151a2b; border:1px solid rgba(255,255,255,.06); }
+
+.pay-cta {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 0;
+  font-weight: 800;
+  color: #0b1220;
+  background: linear-gradient(135deg,#22d3ee,#14b8a6);
+  box-shadow: 0 10px 24px rgba(20,184,166,.35);
+  cursor: pointer;
+}
+.pay-cta:hover { filter: brightness(1.05); }
+
+.pay-loading { text-align:center; color:#cbd5e1; padding: 30px 0; }
+
+.pay-help { margin-top: 10px; font-size: 11px; color:#98a4b7; text-align:center; }
+
+

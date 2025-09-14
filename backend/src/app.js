@@ -38,6 +38,7 @@ const groupRoutes = require("./routes/groupRoutes");
 const groupMessageRoutes = require("./routes/groupMessageRoutes");
 const postRoutes = require("./routes/postRoutes");
 const aiRoutes = require("./routes/aiRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 const app = express();
 
@@ -80,6 +81,10 @@ app.use("/api/posts", postRoutes);
 // AI
 app.use("/ai", aiRoutes);
 app.use("/api/ai", aiRoutes);
+
+// Payments
+app.use("/payments", paymentRoutes);
+app.use("/api/payments", paymentRoutes);
 
 // Healthcheck
 app.get("/api/health", (_req, res) => res.json({ ok: true }));

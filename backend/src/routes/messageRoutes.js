@@ -6,9 +6,12 @@ const User = require("../models/User"); // ✅ Required for inbox route
 
 const OpenAI = require("openai");
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Guard OpenAI init so server can run without a key
+const hasOpenAI = !!(process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY.trim());
+let openai = null;
+if (hasOpenAI) {
+  openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 
 
@@ -17,6 +20,10 @@ router.post("/style-message", async (req, res) => {
   const { rawText } = req.body;
 
   try {
+    if (!openai) {
+      // Fallback: return raw text when OpenAI is not configured
+      return res.json({ styledMessage: String(rawText || "") });
+    }
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -28,11 +35,11 @@ router.post("/style-message", async (req, res) => {
       ],
     });
 
-    const styledMessage = completion.choices[0].message.content;
+    const styledMessage = completion.choices?.[0]?.message?.content || String(rawText || "");
     res.json({ styledMessage });
   } catch (err) {
     console.error("AI Styling Error:", err.message);
-    res.status(500).json({ error: "Failed to style message" });
+    res.status(200).json({ styledMessage: String(rawText || "") });
   }
 });
 

@@ -225,6 +225,7 @@ router.put("/:id", authenticate, async (req, res) => {
       bioCoreSkills,
       bioMotivation,
       bioCurrentFocus,
+      portfolioProjects,
       website, 
       skills, 
       profession, 
@@ -244,6 +245,7 @@ router.put("/:id", authenticate, async (req, res) => {
     if (bioMotivation !== undefined) updateData.bioMotivation = bioMotivation;
     if (bioCurrentFocus !== undefined) updateData.bioCurrentFocus = bioCurrentFocus;
     if (skills !== undefined) updateData.skills = Array.isArray(skills) ? skills : [];
+    if (portfolioProjects !== undefined) updateData.portfolioProjects = Array.isArray(portfolioProjects) ? portfolioProjects : [];
     if (profession !== undefined) updateData.profession = profession;
     if (experienceYears !== undefined) updateData.experienceYears = experienceYears;
     if (location !== undefined) updateData.location = location;

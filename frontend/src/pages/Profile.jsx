@@ -425,6 +425,7 @@ const Profile = () => {
   );
 
   return (
+    <div className="profile-page">
     <div className="profile-container">
       {/* Header */}
       <div className="profile-header">
@@ -520,6 +521,18 @@ const Profile = () => {
 
         <div className="bio-section">
           <div className="bio-content">
+            {/* Move SkillRoom button above bio */}
+            <div className="quick-actions" role="group" aria-label="Profile quick actions" style={{ marginBottom:14 }}>
+              <button 
+                className="qa-btn match btn-3d" 
+                onClick={() => navigate("/match")}
+                aria-label="Open SkillRoom"
+              >
+                <span className="btn-3d__shadow" aria-hidden></span>
+                <span className="btn-3d__edge" aria-hidden></span>
+                <span className="btn-3d__front">SkillRoom</span>
+              </button>
+            </div>
             {/* Short Bio */}
             <div className="bio-main">
               <h4 className="bio-label">Bio</h4>
@@ -566,15 +579,53 @@ const Profile = () => {
 
             {/* Key Information */}
             <div className="user-details">
-              {user.skills && user.skills.length > 0 && (
-                <div className="detail-item">
-                  <span className="detail-icon">🛠️</span>
+              {Array.isArray(user.portfolioProjects) && user.portfolioProjects.length > 0 && (
+                <div className="detail-item" style={{ display:'block' }}>
+                  <span className="detail-icon">📁</span>
                   <div className="detail-content">
-                    <span className="detail-label">Skills</span>
-                    <span className="detail-text">{user.skills.join(", ")}</span>
+                    <span className="detail-label">Projects</span>
+                    <div style={{ display:'grid', gap:14 }}>
+                      {user.portfolioProjects.map((pr, idx) => {
+                        const when = [pr.start, pr.end].filter(Boolean).join(' – ') || (pr.duration || '');
+                        const bullets = (pr.summary || pr.impact || '')
+                          .split(/\n|\.|•|\-/)
+                          .map(s => s.trim())
+                          .filter(Boolean)
+                          .slice(0,6);
+                        return (
+                          <div key={idx} style={{ background:'rgba(255,255,255,0.96)', border:'1px solid #e5e7eb', borderRadius:12, padding:12 }}>
+                            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:8, flexWrap:'wrap' }}>
+                              <div>
+                                <div style={{ fontWeight:700, color:'#111827' }}>{pr.name || 'Project'}</div>
+                                {(pr.role || pr.company) && (
+                                  <div style={{ color:'#374151', marginTop:2, fontSize:13 }}>
+                                    {pr.role ? pr.role : ''}{pr.role && pr.company ? ' @ ' : ''}{pr.company || ''}
+                                  </div>
+                                )}
+                              </div>
+                              <div style={{ color:'#6b7280', fontSize:12 }}>{when}</div>
+                            </div>
+                            {bullets.length > 0 && (
+                              <ul style={{ margin:'8px 0 0', paddingLeft:18, color:'#374151', lineHeight:1.45, fontSize:13 }}>
+                                {bullets.map((b,i)=>(<li key={i}>{b}</li>))}
+                              </ul>
+                            )}
+                            {Array.isArray(pr.tools) && pr.tools.length > 0 && (
+                              <div style={{ display:'flex', flexWrap:'wrap', gap:6, marginTop:10 }}>
+                                {pr.tools.slice(0,14).map((t, i) => (
+                                  <span key={i} className="chip" style={{ background:'#eef2ff', border:'1px solid #e5e7eb', color:'#1f2937' }}>{t}</span>
+                                ))}
+                              </div>
+                            )}
+                            {pr.link && <a href={pr.link} target="_blank" rel="noreferrer" className="detail-link" style={{ marginTop:10, display:'inline-block' }}>View</a>}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               )}
+              {/* skills card removed to avoid duplication */}
               {user.profession && (
                 <div className="detail-item">
                   <span className="detail-icon">💼</span>
@@ -598,18 +649,7 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Quick Action Pills */}
-      <div className="quick-actions" role="group" aria-label="Profile quick actions">
-        <button 
-          className="qa-btn match btn-3d" 
-          onClick={() => navigate("/match")}
-          aria-label="Open SkillRoom"
-        >
-          <span className="btn-3d__shadow" aria-hidden></span>
-          <span className="btn-3d__edge" aria-hidden></span>
-          <span className="btn-3d__front">SkillRoom</span>
-        </button>
-      </div>
+      {/* Quick actions moved above bio */}
 
       {/* SkillShots & SkillClips Section */}
       <div className="posts-section">
@@ -739,8 +779,10 @@ const Profile = () => {
       {/* Footer spacer for bottom nav */}
       <div style={{ height: 72 }} />
     </div>
+    </div>
   );
 };
 
 export default Profile;
+
 

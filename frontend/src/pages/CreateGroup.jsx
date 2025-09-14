@@ -8,6 +8,10 @@ const CreateGroup = () => {
   const [name, setName] = useState("");
   const [maxMembers, setMaxMembers] = useState(10);
   const [isPublic, setIsPublic] = useState(true);
+  const [category, setCategory] = useState("general");
+  const [isPaid, setIsPaid] = useState(false);
+  const [price, setPrice] = useState(0);
+  const [currency, setCurrency] = useState("INR");
   const navigate = useNavigate();
 
 const handleCreate = async () => {
@@ -27,6 +31,10 @@ const handleCreate = async () => {
       maxMembers: parseInt(maxMembers),
       isPublic,
       adminId: user._id,
+      category,
+      isPaid,
+      price: isPaid ? Number(price) : 0,
+      currency,
     });
 
     console.log("🔍 Group creation response:", res.data);
@@ -85,9 +93,9 @@ const handleCreate = async () => {
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                   <button
                     type="button"
-                    onClick={() => setIsPublic(true)}
+                    onClick={() => !isPaid && setIsPublic(true)}
                     className="btn"
-                    style={{ padding: 12, borderRadius: 10, border: 0, cursor: "pointer", fontWeight: 700, background: isPublic ? "linear-gradient(135deg,#667eea,#764ba2)" : "#f3f4f6", color: isPublic ? "#fff" : "#111827" }}
+                    style={{ padding: 12, borderRadius: 10, border: 0, cursor: isPaid ? "not-allowed" : "pointer", opacity: isPaid ? 0.6 : 1, fontWeight: 700, background: isPublic && !isPaid ? "linear-gradient(135deg,#667eea,#764ba2)" : "#f3f4f6", color: isPublic && !isPaid ? "#fff" : "#111827" }}
                   >Public</button>
                   <button
                     type="button"
@@ -96,8 +104,59 @@ const handleCreate = async () => {
                     style={{ padding: 12, borderRadius: 10, border: 0, cursor: "pointer", fontWeight: 700, background: !isPublic ? "linear-gradient(135deg,#667eea,#764ba2)" : "#f3f4f6", color: !isPublic ? "#fff" : "#111827" }}
                   >Private</button>
                 </div>
+                {isPaid && (
+                  <p style={{ marginTop: 6, fontSize: 12, color: "#ef4444" }}>
+                    Paid groups are always private. Visibility switched to Private.
+                  </p>
+                )}
               </div>
             </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              <div>
+                <label style={{ fontSize: 12, color: "#6b7280", display: "block", marginBottom: 6 }}>Category</label>
+                <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ width: "100%", padding: 12, borderRadius: 10, border: "1px solid #e5e7eb", outline: "none" }}>
+                  {[
+                    ["general","General"],
+                    ["education","Educational"],
+                    ["music","Musical"],
+                    ["politics","Political"],
+                    ["property","Property"],
+                    ["technology","Technology"],
+                    ["health","Health"],
+                    ["art","Art"],
+                    ["sports","Sports"],
+                    ["finance","Finance"],
+                    ["other","Other"],
+                  ].map(([val,label]) => (
+                    <option key={val} value={val}>{label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: 12, color: "#6b7280", display: "block", marginBottom: 6 }}>Paid Access</label>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <input type="checkbox" checked={isPaid} onChange={(e) => setIsPaid(e.target.checked)} /> Paid Group
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {isPaid && (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <label style={{ fontSize: 12, color: "#6b7280", display: "block", marginBottom: 6 }}>Price</label>
+                  <input type="number" min={0} value={price} onChange={(e) => setPrice(e.target.value)} style={{ width: "100%", padding: 12, borderRadius: 10, border: "1px solid #e5e7eb", outline: "none" }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, color: "#6b7280", display: "block", marginBottom: 6 }}>Currency</label>
+                  <select value={currency} onChange={(e) => setCurrency(e.target.value)} style={{ width: "100%", padding: 12, borderRadius: 10, border: "1px solid #e5e7eb", outline: "none" }}>
+                    {["INR","USD","EUR"].map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+              </div>
+            )}
             <button className="btn primary" onClick={handleCreate}>Create Group</button>
           </div>
         </div>
